@@ -14,6 +14,7 @@
 #endif
 
 #include <float.h>
+#include <Windows.h>
 
 typedef DWORD SIMCONNECT_OBJECT_ID;
 typedef unsigned __int64 QWORD;
