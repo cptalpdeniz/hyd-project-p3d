@@ -7,8 +7,8 @@ class GreenHydraulics : public Hydraulics
 {
 public:
 	GreenHydraulics();
-	void applyBraking();
 	//void displayStatus() const override;
+	void applyBraking(double deltaTime);
 };
 
 
