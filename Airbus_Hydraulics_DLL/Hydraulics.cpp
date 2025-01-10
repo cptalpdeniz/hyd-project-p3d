@@ -102,10 +102,10 @@ void Hydraulics::regulatePressure(double deltaTime)
 }
 
 // Simulate hydraulic fluid leak
-void Hydraulics::simulateLeak(double deltaTime, double leakRate)
+void Hydraulics::simulateLeak(double deltaTime)
 {
     std::lock_guard<std::mutex> lock(pressureMutex);
-    fluidReservoir -= leakRate * deltaTime;
+    fluidReservoir -= FLUID_DEPLETION_RATE * deltaTime;
     if (fluidReservoir < 0.0)
     {
         fluidReservoir = 0.0; // reservoir can't go negative
@@ -120,4 +120,12 @@ void Hydraulics::simulateLeak(double deltaTime, double leakRate)
             pressure = 0.0; // pressure can't go negative
         }
     }
+}
+
+// Simulate pump failure
+void Hydraulics::simulatePumpFailure()
+{
+    std::lock_guard<std::mutex> lock(pressureMutex);
+
+    isPumpActive = false;
 }

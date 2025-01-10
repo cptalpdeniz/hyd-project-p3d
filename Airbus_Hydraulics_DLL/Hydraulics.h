@@ -62,6 +62,15 @@ public:
     // Display system status
     //virtual void displayStatus();
 
+    /*
+    * Failures Section
+    */
+    // Simulate fluid leak
+    void simulateLeak(double deltaTime);
+
+    // Simulate pump failure
+    void simulatePumpFailure();
+
 protected:
     // Regulate pressure automatically
     void regulatePressure(double deltaTime);
