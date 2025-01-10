@@ -9,6 +9,11 @@ public:
 	GreenHydraulics();
 	//void displayStatus() const override;
 	void applyBraking(double deltaTime);
+
+private:
+	static constexpr double MIN_BRAKING_PRESSURE = 1000.0; // PSI
+	static constexpr double BRAKING_FLUID_CONSUMPTION_RATE = 0.5; // percentage per second
+	static constexpr double BRAKING_PRESSURE_DROP_RATE = 200.0; // PSI per second
 };
 
 
