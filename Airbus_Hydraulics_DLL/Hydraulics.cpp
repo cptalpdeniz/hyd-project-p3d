@@ -112,7 +112,7 @@ void Hydraulics::simulateLeak(double deltaTime, double leakRate)
     }
 
     // if there is no hydraulic fluid, pressure decreases
-    if (fluidReservoir == 0.0)
+    if (fluidReservoir <= 0.0)
     {
         pressure -= 50.0 * deltaTime; // simulate pressure drop due to fluid leak
         if (pressure < 0.0)
