@@ -73,12 +73,12 @@ double Hydraulics::getPressure()
     return pressure;
 }
 
-// Display system status
-void Hydraulics::displayStatus()
-{
-    std::lock_guard<std::mutex> lock(pressureMutex);
-    //std::cout << "System: " << systemName << " | Pressure: " << pressure << " PSI" << " | Fluid Reservoir: " << fluidReservoir << "%" << " | Pump: " << (isPumpActive ? "Active" : "Inactive") << std::endl;  // for debugging
-}
+//// Display system status
+//void Hydraulics::displayStatus()
+//{
+//    std::lock_guard<std::mutex> lock(pressureMutex);
+//    std::cout << "System: " << systemName << " | Pressure: " << pressure << " PSI" << " | Fluid Reservoir: " << fluidReservoir << "%" << " | Pump: " << (isPumpActive ? "Active" : "Inactive") << std::endl;  // for debugging
+//}
 
 // Regulate pressure automatically
 void Hydraulics::regulatePressure(double deltaTime)
