@@ -3,7 +3,7 @@
 
 GreenHydraulics::GreenHydraulics() : Hydraulics("Green")
 {
-} // Default pressure: 3000 PSI
+}
 
 //void GreenHydraulics::displayStatus() const
 //{
@@ -11,7 +11,18 @@ GreenHydraulics::GreenHydraulics() : Hydraulics("Green")
 //	Hydraulics::displayStatus();
 //}
 
-void GreenHydraulics::applyBraking()
+// Function to handle braking action of the Green HYD system.
+void GreenHydraulics::applyBraking(double deltaTime)
 {
+    std::lock_guard<std::mutex> lock(pressureMutex);
 
+    if (pressure > MIN_BRAKING_PRESSURE && fluidReservoir > 0.0)
+    {
+        pressure -= BRAKING_PRESSURE_DROP_RATE * deltaTime; // pressure drops a bit due to braking
+
+        if (pressure < MIN_BRAKING_PRESSURE)
+        {
+            pressure = MIN_BRAKING_PRESSURE; // pressure cannot go below the min value
+        }
+    }
 }
