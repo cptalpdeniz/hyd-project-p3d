@@ -14,7 +14,7 @@
 * Constructor
 * Initialize with nominal values
 */
-Hydraulics::Hydraulics(const std::string & name, double initialPressure)
+Hydraulics::Hydraulics(const std::string & name)
     : systemName(name), pressure(NOMINAL_PRESSURE), fluidReservoir(NOMINAL_FLUID_AMOUNT), isPumpActive(false), running(false)
 {
 }

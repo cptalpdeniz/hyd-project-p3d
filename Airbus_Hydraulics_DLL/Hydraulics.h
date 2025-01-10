@@ -36,7 +36,7 @@ protected:
 
 public:
     // Constructor
-    Hydraulics(const std::string & name, double initialPressure);
+    Hydraulics(const std::string & name);
 
     // Virtual destructor
     virtual ~Hydraulics();
@@ -60,7 +60,7 @@ public:
     virtual double getPressure();
 
     // Display system status
-    virtual void displayStatus();
+    //virtual void displayStatus();
 
 protected:
     // Regulate pressure automatically
