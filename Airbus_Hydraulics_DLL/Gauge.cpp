@@ -34,7 +34,7 @@ FLOAT64 yellow_hyd_pressure;
 FLOAT64 yellow_hyd_fluid;
 
 //State of system holds - these are the current states of the modes (not switch position)
-bool green_hyd_pump_state = false; //state of the SET switch
+bool green_hyd_pump_state = false; 
 bool blue_hyd_pump_state = false;
 bool yellow_hyd_pump_state = false;
 
