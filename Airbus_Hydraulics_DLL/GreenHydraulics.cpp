@@ -1,15 +1,11 @@
+#include "pch.h"
+
 #include "GreenHydraulics.h"
 
 
 GreenHydraulics::GreenHydraulics() : Hydraulics("Green")
 {
 }
-
-//void GreenHydraulics::displayStatus() const
-//{
-//	std::cout << "[Green System] ";
-//	Hydraulics::displayStatus();
-//}
 
 // Function to handle braking action of the Green HYD system.
 void GreenHydraulics::applyBraking(double deltaTime)
@@ -24,5 +20,13 @@ void GreenHydraulics::applyBraking(double deltaTime)
         {
             pressure = MIN_BRAKING_PRESSURE; // pressure cannot go below the min value
         }
+
     }
 }
+
+
+//void GreenHydraulics::displayStatus() const
+//{
+//	std::cout << "[Green System] ";
+//	Hydraulics::displayStatus();
+//}
