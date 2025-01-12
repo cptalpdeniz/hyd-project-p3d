@@ -1,4 +1,5 @@
 LIBRARY	"Gauge"
 EXPORTS
-DLLStart
-DLLStop
+module_init
+module_deinit
+Panels DATA
