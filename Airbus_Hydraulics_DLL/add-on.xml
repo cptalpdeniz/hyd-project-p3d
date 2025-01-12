@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SimBase.Document Type="AddOnXml" version="4,0" id="add-on">
+	<AddOn.Name>Airbus-Hydraulics</AddOn.Name>
+	<AddOn.Description>Airbus Hydraulics for iniBuilds Task</AddOn.Description>
+	<AddOn.Component>
+		<Category>DLL</Category>
+		<Path>Airbus_Hydraulics.dll</Path>
+		<DLLStartName>module_init</DLLStartName>
+		<DLLStopName>module_deinit</DLLStopName>
+	</AddOn.Component>
+	<AddOn.Component>
+		<Category>Gauges</Category>
+		<Path>gauges</Path>
+	</AddOn.Component>
+</SimBase.Document>
