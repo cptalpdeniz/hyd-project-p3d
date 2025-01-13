@@ -181,6 +181,24 @@ void Hydraulics::simulatePumpFail()
 {
     isPumpFailed = true;
     isPumpActive = false;
+
+    std::thread([this]() {
+        while (isPumpFailed && !isPumpActive && pressure > 0.0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // interval to reduce pressure
+
+            // Lock the pressure mutex to safely modify the pressure
+            std::scoped_lock<std::mutex> lock(pressureMutex);
+
+            pressure -= PRESSURE_DEPLETION_RATE;
+
+            if (pressure < 0.0)
+            {
+                pressure = 0.0; // pressure can't go negative
+            }
+        }
+        }).detach();
+
 }
 
 // Stop pump failure simulation
