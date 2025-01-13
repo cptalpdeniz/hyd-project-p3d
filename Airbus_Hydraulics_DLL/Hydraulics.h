@@ -7,10 +7,6 @@
 #ifndef A320_HYDRAULICS_H
 #define A320_HYDRAULICS_H
 
-#include <string>
-#include <iostream>
-#include <thread>
-#include <atomic>
 #include <chrono>
 #include <mutex>
 
@@ -22,9 +18,12 @@ protected:
     double fluidReservoir; // in %, 0-100 range
 
     std::atomic<bool> isPumpActive;
-    std::atomic<bool> running;
+    std::atomic<bool> isLeaking;
+    std::atomic<bool> isRegulatorRunning;
+    std::atomic<bool> isPumpFailed;
 
     std::mutex pressureMutex;
+    std::mutex fluidReservoirMutex;
 
     // following variables are the same for all hydraulic systems (obviously there might be differences
     // between systems however that is not simulated for simplicity purposes)
@@ -59,6 +58,30 @@ public:
     // Get pressure
     virtual double getPressure();
 
+    // Set fluid
+    virtual void setFluid(double newFluid);
+
+    // Get fluid
+    virtual double getFluid();
+
+    // Get if the pump is active
+    virtual bool getIsPumpActive();
+
+    // Set the pump state
+    virtual void setIsPumpActive(bool state);
+
+    // Get if the pump is active
+    virtual bool getIsLeaking();
+
+    // Set the pump state
+    virtual void setIsLeaking(bool state);
+
+    // Get if the pump has failed
+    virtual bool getIsPumpFailed();
+
+    // Set the pump failure state
+    virtual void setIsPumpFailed(bool state);
+
     // Display system status
     //virtual void displayStatus();
 
@@ -66,17 +89,20 @@ public:
     * Failures Section
     */
     // Simulate fluid leak
-    void simulateLeak(double deltaTime);
+    void simulateLeak();
+
+    // Stop fluid leak simulation
+    void stopLeak();
 
     // Simulate pump failure
-    void simulatePumpFailure();
+    void simulatePumpFail();
+
+    // Stop pump failure simulation
+    void stopPumpFail();
 
 protected:
     // Regulate pressure automatically
     void regulatePressure(double deltaTime);
-
-    // Simulate Hydraulic fluid leak
-    void simulateLeak(double deltaTime, double leakRate);
 };
 
 #endif

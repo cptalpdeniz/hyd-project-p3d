@@ -3,19 +3,16 @@
 *
 * This file is the cpp file for the Hydraulics base class
 */
+#include "pch.h"
 
 #include "Hydraulics.h"
-
-//#include <iostream>
-#include <thread>
-#include <chrono>
 
 /*
 * Constructor
 * Initialize with nominal values
 */
 Hydraulics::Hydraulics(const std::string & name)
-    : systemName(name), pressure(NOMINAL_PRESSURE), fluidReservoir(NOMINAL_FLUID_AMOUNT), isPumpActive(false), running(false)
+    : systemName(name), pressure(NOMINAL_PRESSURE), fluidReservoir(NOMINAL_FLUID_AMOUNT), isPumpActive(true), isRegulatorRunning(false), isPumpFailed(false)
 {
 }
 
@@ -28,9 +25,9 @@ Hydraulics::~Hydraulics()
 // Start the regulator thread
 void Hydraulics::startRegulator()
 {
-    running = true;
+    isRegulatorRunning = true;
     std::thread([this]() {
-        while (running)
+        while (isRegulatorRunning)
         {
             if (isPumpActive)
             {
@@ -44,7 +41,7 @@ void Hydraulics::startRegulator()
 // Stop the regulator thread
 void Hydraulics::stopRegulator()
 {
-    running = false;
+    isRegulatorRunning = false;
 }
 
 void Hydraulics::activatePump()
@@ -73,17 +70,61 @@ double Hydraulics::getPressure()
     return pressure;
 }
 
-//// Display system status
-//void Hydraulics::displayStatus()
-//{
-//    std::lock_guard<std::mutex> lock(pressureMutex);
-//    std::cout << "System: " << systemName << " | Pressure: " << pressure << " PSI" << " | Fluid Reservoir: " << fluidReservoir << "%" << " | Pump: " << (isPumpActive ? "Active" : "Inactive") << std::endl;  // for debugging
-//}
+// Set fluid
+void Hydraulics::setFluid(double newFluid)
+{
+    std::lock_guard<std::mutex> lock(fluidReservoirMutex);
+    fluidReservoir = newFluid;
+}
+
+// Get fluid
+double Hydraulics::getFluid()
+{
+    std::lock_guard<std::mutex> lock(fluidReservoirMutex);
+    return fluidReservoir;
+}
+
+// Get if the pump is active
+bool Hydraulics::getIsPumpActive()
+{
+    return isPumpActive.load();
+}
+
+// Set the pump state
+void Hydraulics::setIsPumpActive(bool state)
+{
+    isPumpActive.store(state);
+}
+
+// Get if there is leak in the system
+bool Hydraulics::getIsLeaking()
+{
+    return isLeaking.load();
+}
+
+// Set leak state of the system
+void Hydraulics::setIsLeaking(bool state)
+{
+    isLeaking.store(state);
+}
+
+// Get if the pump has failed
+bool Hydraulics::getIsPumpFailed()
+{
+    return isPumpFailed.load();
+}
+
+// Set the pump failure state
+void Hydraulics::setIsPumpFailed(bool state)
+{
+    isPumpFailed.store(state);
+}
 
 // Regulate pressure automatically
 void Hydraulics::regulatePressure(double deltaTime)
 {
     std::lock_guard<std::mutex> lock(pressureMutex);
+
     if (fluidReservoir > 0.0 && pressure < NOMINAL_PRESSURE)
     {
         // using this calculation, the pressure build up slows down the higher it gets closer to nominal 3000 value
@@ -102,30 +143,59 @@ void Hydraulics::regulatePressure(double deltaTime)
 }
 
 // Simulate hydraulic fluid leak
-void Hydraulics::simulateLeak(double deltaTime)
+void Hydraulics::simulateLeak()
 {
-    std::lock_guard<std::mutex> lock(pressureMutex);
-    fluidReservoir -= FLUID_DEPLETION_RATE * deltaTime;
-    if (fluidReservoir < 0.0)
-    {
-        fluidReservoir = 0.0; // reservoir can't go negative
-    }
+    isLeaking = true;
 
-    // if there is no hydraulic fluid, pressure decreases
-    if (fluidReservoir <= 0.0)
-    {
-        pressure -= 50.0 * deltaTime; // simulate pressure drop due to fluid leak
-        if (pressure < 0.0)
+    std::thread([this]() {
+        while (isLeaking && fluidReservoir >= 0.0)
         {
-            pressure = 0.0; // pressure can't go negative
+            // lock both pressure and fluidReservoir simultaneously
+            std::scoped_lock<std::mutex, std::mutex> lock(pressureMutex, fluidReservoirMutex);
+
+            fluidReservoir -= FLUID_DEPLETION_RATE;
+
+            if (fluidReservoir < 0.0)
+            {
+                fluidReservoir = 0.0; // reservoir can't go negative
+            }
         }
-    }
+        while (fluidReservoir == 0.0)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // drip interval
+            pressure -= 0.1; // simulate pressure drop when fluid is depleted
+            if (pressure < 0.0)
+            {
+                pressure = 0.0; // pressure can't go negative
+            }
+        }
+        }).detach();
+}
+
+// Stop fluid leak simulation
+void Hydraulics::stopLeak()
+{
+    isLeaking = false;
 }
 
 // Simulate pump failure
-void Hydraulics::simulatePumpFailure()
+void Hydraulics::simulatePumpFail()
 {
-    std::lock_guard<std::mutex> lock(pressureMutex);
-
+    isPumpFailed = true;
     isPumpActive = false;
 }
+
+// Stop pump failure simulation
+void Hydraulics::stopPumpFail()
+{
+    isPumpFailed = false;
+    isPumpActive = true;
+}
+
+
+//// Display system status
+//void Hydraulics::displayStatus()
+//{
+//    std::lock_guard<std::mutex> lock(pressureMutex);
+//    std::cout << "System: " << systemName << " | Pressure: " << pressure << " PSI" << " | Fluid Reservoir: " << fluidReservoir << "%" << " | Pump: " << (isPumpActive ? "Active" : "Inactive") << std::endl;  // for debugging
+//}
