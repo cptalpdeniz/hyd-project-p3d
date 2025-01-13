@@ -32,6 +32,7 @@ protected:
     static constexpr double MAX_RECOVERY_RATE = 300.0;          // maximum PSI per second
     static constexpr double RECOVERY_FACTOR = 0.1;              // proportional recovery factor
     static constexpr double FLUID_DEPLETION_RATE = 0.51;        // depletion rate of the fluid in a leak situation (ORIGINAL VALUE 0.01)
+    static constexpr double PRESSURE_DEPLETION_RATE = 1.0;
 
 public:
     // Constructor
