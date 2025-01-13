@@ -146,7 +146,7 @@ void Hydraulics::simulateLeak()
     isLeaking = true;
 
     std::thread([this]() {
-        while (isLeaking && fluidReservoir >= 0.0)
+        while (isLeaking && fluidReservoir > 0.0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(10)); // drip interval
 
