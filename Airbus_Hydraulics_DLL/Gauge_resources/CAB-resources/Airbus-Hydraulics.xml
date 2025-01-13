@@ -186,8 +186,8 @@
 		</Area>
 		<!--GREEN HYD PUMP FAIL-->
 		<Area Left="129" Right="202" Top="97" Bottom="135">
-			<Tooltip ID="GREEN HYD PUMP TOGGLE"/>
-			<Tooltip>GREEN HYD PUMP TOGGLE</Tooltip>
+			<Tooltip ID="GREEN HYD PUMP FAIL TOGGLE"/>
+			<Tooltip>GREEN HYD PUMP FAIL TOGGLE</Tooltip>
 			<Cursor Type="Hand"/>
 			<Click Kind="LeftSingle" Repeat="No">!lua
 				if (varget("C:Airbus-Hydraulics:GreenHYDPumpFailSwitch")) == 0 then
@@ -199,8 +199,8 @@
 		</Area>
 		<!--BLUE HYD FLUID LEAK-->
 		<Area Left="284" Right="357" Top="96" Bottom="134">
-			<Tooltip ID="BLUE HYD PUMP TOGGLE"/>
-			<Tooltip>BLUE HYD PUMP TOGGLE</Tooltip>
+			<Tooltip ID="BLUE HYD FLUID LEAK TOGGLE"/>
+			<Tooltip>BLUE HYD FLUID LEAK TOGGLE</Tooltip>
 			<Cursor Type="Hand"/>
 			<Click Kind="LeftSingle" Repeat="No">!lua
 				if (varget("C:Airbus-Hydraulics:BlueHYDFluidLeakSwitch")) == 0 then
@@ -212,8 +212,8 @@
 		</Area>
 		<!--BLUE HYD PUMP FAIL-->
 		<Area Left="392" Right="465" Top="96" Bottom="134">
-			<Tooltip ID="BLUE HYD PUMP TOGGLE"/>
-			<Tooltip>BLUE HYD PUMP TOGGLE</Tooltip>
+			<Tooltip ID="BLUE HYD PUMP FAIL TOGGLE"/>
+			<Tooltip>BLUE HYD PUMP FAIL TOGGLE</Tooltip>
 			<Cursor Type="Hand"/>
 			<Click Kind="LeftSingle" Repeat="No">!lua
 				if (varget("C:Airbus-Hydraulics:BlueHYDPumpFailSwitch")) == 0 then
@@ -225,8 +225,8 @@
 		</Area>
 		<!--YELLOW HYD FLUID LEAK-->
 		<Area Left="560" Right="633" Top="96" Bottom="135">
-			<Tooltip ID="YELLOW HYD PUMP TOGGLE"/>
-			<Tooltip>YELLOW HYD PUMP TOGGLE</Tooltip>
+			<Tooltip ID="YELLOW HYD FLUID LEAK TOGGLE"/>
+			<Tooltip>YELLOW HYD FLUID LEAK TOGGLE</Tooltip>
 			<Cursor Type="Hand"/>
 			<Click Kind="LeftSingle" Repeat="No">!lua
 				if (varget("C:Airbus-Hydraulics:YellowHYDFluidLeakSwitch")) == 0 then
@@ -238,8 +238,8 @@
 		</Area>
 		<!--YELLOW HYD PUMP FAIL-->
 		<Area Left="669" Right="742" Top="96" Bottom="134">
-			<Tooltip ID="YELLOW HYD PUMP TOGGLE"/>
-			<Tooltip>YELLOW HYD PUMP TOGGLE</Tooltip>
+			<Tooltip ID="YELLOW HYD PUMP FAIL TOGGLE"/>
+			<Tooltip>YELLOW HYD PUMP FAIL TOGGLE</Tooltip>
 			<Cursor Type="Hand"/>
 			<Click Kind="LeftSingle" Repeat="No">!lua
 				if (varget("C:Airbus-Hydraulics:YellowHYDPumpFailSwitch")) == 0 then
