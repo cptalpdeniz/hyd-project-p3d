@@ -35,20 +35,21 @@ FLOAT64 yellow_hyd_pressure;
 FLOAT64 yellow_hyd_fluid;
 
 //State of system holds - these are the current states of the modes (not switch position)
-bool green_hyd_pump_state = false; 
-bool blue_hyd_pump_state = false;
-bool yellow_hyd_pump_state = false;
+bool green_hyd_pump_state; 
+bool blue_hyd_pump_state;
+bool yellow_hyd_pump_state;
 
-bool green_hyd_fluid_leak_state = false;
-bool blue_hyd_fluid_leak_state = false;
-bool yellow_hyd_fluid_leak_state = false;
+bool green_hyd_fluid_leak_state;
+bool blue_hyd_fluid_leak_state;
+bool yellow_hyd_fluid_leak_state;
 
-bool green_hyd_pump_fail_state = false;
-bool blue_hyd_pump_fail_state = false;
-bool yellow_hyd_pump_fail_state = false;
+bool green_hyd_pump_fail_state;
+bool blue_hyd_pump_fail_state;
+bool yellow_hyd_pump_fail_state;
 
-bool landing_gear_state = false;
-bool flight_controls_state = false;
+bool landing_gear_state;
+bool flight_controls_state;
+
 
 std::unique_ptr<GreenHydraulics> greenHydraulicSystem;
 std::unique_ptr<BlueHydraulics> blueHydraulicSystem;
@@ -890,6 +891,22 @@ void FSAPI module_init(void)
 	greenHydraulicSystem = std::make_unique<GreenHydraulics>();
 	blueHydraulicSystem = std::make_unique<BlueHydraulics>();
 	yellowHydraulicSystem = std::make_unique<YellowHydraulics>();
+
+
+	green_hyd_pump_state = greenHydraulicSystem->getIsPumpActive();
+	blue_hyd_pump_state = blueHydraulicSystem->getIsPumpActive();
+	yellow_hyd_pump_state = yellowHydraulicSystem->getIsPumpActive();
+
+	green_hyd_fluid_leak_state = greenHydraulicSystem->getIsLeaking();
+	blue_hyd_fluid_leak_state = blueHydraulicSystem->getIsLeaking();
+	yellow_hyd_fluid_leak_state = yellowHydraulicSystem->getIsLeaking();
+
+	green_hyd_pump_fail_state = greenHydraulicSystem->getIsPumpFailed();
+	blue_hyd_pump_fail_state = blueHydraulicSystem->getIsPumpFailed();
+	yellow_hyd_pump_fail_state = yellowHydraulicSystem->getIsPumpFailed();
+
+	landing_gear_state = false;
+	flight_controls_state = false;
 
 	if (NULL != Panels)
 	{
