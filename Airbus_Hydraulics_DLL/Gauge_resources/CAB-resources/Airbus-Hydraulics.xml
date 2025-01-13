@@ -91,10 +91,10 @@
 		</Text>
 	</Element>
 	<Element id="GREEN_HYD_FLUID">
-		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="14"
-			Color="greenyellow" Adjust="Center" VerticalAdjust="Center">
-			<String>%((C:Airbus-Hydraulics:GreenHYDFluidLevel))%!d!%%</String>
 		<Position X="112" Y="166"/>
+		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="15"
+			Color="0x00FF42" Adjust="Center" VerticalAdjust="Center">
+			<String>%((C:Airbus-Hydraulics:GreenHYDFluidLevel))%!2.2f!%%</String>
 		</Text>
 	</Element>
 
@@ -107,10 +107,10 @@
 		</Text>
 	</Element>
 	<Element id="BLUE_HYD_FLUID">
-		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="14"
-			Color="Blue" Adjust="Center" VerticalAdjust="Center">
-			<String>%((C:Airbus-Hydraulics:BlueHYDFluidLevel))%!d!%%</String>
 		<Position X="392" Y="164"/>
+		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="15"
+			Color="0xF7FF00" Adjust="Center" VerticalAdjust="Center">
+			<String>%((C:Airbus-Hydraulics:BlueHYDFluidLevel))%!2.2f!%%</String>
 		</Text>
 	</Element>
 
@@ -123,10 +123,10 @@
 		</Text>
 	</Element>
 	<Element id="YELLOW_HYD_FLUID">
-		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="14"
-			Color="Yellow" Adjust="Center" VerticalAdjust="Center">
-			<String>%((C:Airbus-Hydraulics:YellowHYDFluidLevel))%!d!%%</String>
 		<Position X="667" Y="164"/>
+		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="15"
+			Color="0x00D6FF" Adjust="Center" VerticalAdjust="Center">
+			<String>%((C:Airbus-Hydraulics:YellowHYDFluidLevel))%!2.2f!%%</String>
 		</Text>
 	</Element>
 
