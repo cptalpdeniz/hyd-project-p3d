@@ -148,23 +148,25 @@ void Hydraulics::simulateLeak()
     std::thread([this]() {
         while (isLeaking && fluidReservoir >= 0.0)
         {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // drip interval
+
             // lock both pressure and fluidReservoir simultaneously
             std::scoped_lock<std::mutex, std::mutex> lock(pressureMutex, fluidReservoirMutex);
 
             fluidReservoir -= FLUID_DEPLETION_RATE;
 
-            if (fluidReservoir < 0.0)
+            if (fluidReservoir < 50.0)
             {
-                fluidReservoir = 0.0; // reservoir can't go negative
-            }
-        }
-        while (fluidReservoir == 0.0)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // drip interval
-            pressure -= 0.1; // simulate pressure drop when fluid is depleted
-            if (pressure < 0.0)
-            {
-                pressure = 0.0; // pressure can't go negative
+                pressure -= 0.1; // simulate pressure drop when fluid is depleted
+                if (pressure < 0.0)
+                {
+                    pressure = 0.0; // pressure can't go negative
+                }
+
+                if (fluidReservoir < 0.0)
+                {
+                    fluidReservoir = 0.0; // reservoir can't go negative
+                }
             }
         }
         }).detach();
@@ -200,6 +202,7 @@ void Hydraulics::simulatePumpFail()
         }).detach();
 
 }
+
 
 // Stop pump failure simulation
 void Hydraulics::stopPumpFail()
