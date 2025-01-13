@@ -536,7 +536,7 @@ public:
 	void set_blue_hyd_pump_fail_switch(bool switch_state)
 	{
 		if (switch_state == true)
-		{
+		{ 
 			blue_hyd_pump_switch = false;
 		}
 
@@ -546,7 +546,7 @@ public:
 	// Set Yellow HYD pump fail status
 	void set_yellow_hyd_pump_fail_switch(bool switch_state)
 	{
-		if (switch_state == true)
+ 		if (switch_state == true)
 		{
 			yellow_hyd_pump_switch = false;
 		}
@@ -559,7 +559,11 @@ public:
 	{
 		if (greenHydraulicSystem->getPressure() >= 2800)
 		{
-			landing_gear_switch = switch_state;
+			landing_gear_switch = true;
+		}
+		else
+		{
+			landing_gear_switch = false;
 		}
 	}
 
@@ -569,6 +573,10 @@ public:
 		if (!(greenHydraulicSystem->getPressure() > 2000 || blueHydraulicSystem->getPressure() > 2000 || yellowHydraulicSystem->getPressure() > 2000))
 		{
 			flight_controls_switch = false;
+		}
+		else
+		{
+			flight_controls_switch = true;
 		}
 	}
 
