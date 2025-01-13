@@ -419,6 +419,10 @@ void OpenSimConnect()
 				
 		// Define aircraft gear position
 		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_GEAR_POSITION, "GEAR HANDLE POSITION", "Bool", SIMCONNECT_DATATYPE_INT32);
+		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_RUDDER_POSITION, "RUDDER POSITION", "Position", SIMCONNECT_DATATYPE_INT32);
+		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_ELEVATOR_POSITION, "ELEVATOR POSITION", "Position", SIMCONNECT_DATATYPE_INT32);
+		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_AILERON_POSITION, "AILERON POSITION", "Position", SIMCONNECT_DATATYPE_INT32);
+
 
 		//Define a callback in this dll so that the simulation can be notified of SimConnect events
 		if (hr == S_OK)
