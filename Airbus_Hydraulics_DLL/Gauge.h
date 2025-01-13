@@ -5,8 +5,15 @@
 #ifndef GAUGE_H
 #define GAUGE_H
 
+#include "pch.h"
+
+#include <memory>
 #include "Gauges.h"
 #include "SimConn.h"
+#include "GreenHydraulics.h"
+#include "BlueHydraulics.h"
+#include "YellowHydraulics.h"
+
 
 //Shared gauge globals that SimConnect needs to access
 extern bool green_hyd_pump_switch;
@@ -47,12 +54,8 @@ extern bool yellow_hyd_pump_fail_state;
 extern bool landing_gear_state;
 extern bool flight_controls_state;
 
+extern std::unique_ptr<GreenHydraulics> greenHydraulicSystem;
+extern std::unique_ptr<BlueHydraulics> blueHydraulicSystem;
+extern std::unique_ptr<YellowHydraulics> yellowHydraulicSystem;
 
 #endif
-
-struct PROPERTY_TABLE
-{
-	PCSTRINGZ szPropertyName;
-	PCSTRINGZ szUnitsName;
-	ENUM units;
-};

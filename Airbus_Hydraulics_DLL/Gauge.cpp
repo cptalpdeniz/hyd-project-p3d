@@ -2,7 +2,7 @@
 // Copyright (c) 2010-2019 Lockheed Martin Corporation. All rights reserved.
 // Use of this file is bound by the PREPAR3D® SOFTWARE DEVELOPER KIT END USER LICENSE AGREEMENT
 
-#define _CRT_RAND_S
+#include "pch.h"
 
 #include "Gauge.h"
 #include "GreenHydraulics.h"
@@ -10,8 +10,9 @@
 #include "YellowHydraulics.h"
 
 
+
 //Define globals - these need to be shared with SimConnect
-bool green_hyd_pump_switch; //state of the SET switch
+bool green_hyd_pump_switch;
 bool blue_hyd_pump_switch;
 bool yellow_hyd_pump_switch;
 
@@ -48,6 +49,10 @@ bool yellow_hyd_pump_fail_state = false;
 
 bool landing_gear_state = false;
 bool flight_controls_state = false;
+
+std::unique_ptr<GreenHydraulics> greenHydraulicSystem;
+std::unique_ptr<BlueHydraulics> blueHydraulicSystem;
+std::unique_ptr<YellowHydraulics> yellowHydraulicSystem;
 
 bool SetSwitchEvent(bool switch_in, bool hold_state, EVENT_ID switch_event)
 {
@@ -283,59 +288,6 @@ enum AH_VAR
 	AH_FLIGHT_CONTROLS_STATUS
 };
 
-//
-// PanelCallback Override
-//
-
-class AHPanelCallback : public PanelCallback
-{
-public:
-
-	AHPanelCallback()
-
-	{
-		// init property table
-		for (int n = 0; n < LENGTHOF(AH_PROPERTY_TABLE); n++)
-		{
-			if (ImportTable.PANELSentry.fnptr != NULL &&
-				AH_PROPERTY_TABLE[n].units == UNITS_UNKNOWN)
-			{
-				AH_PROPERTY_TABLE[n].units = get_units_enum(AH_PROPERTY_TABLE[n].szUnitsName);
-			}
-		}
-	}
-
-	IAircraftCCallback * CreateAircraftCCallback(UINT32 ContainerID)
-	{
-		return new APAircraftCallback(ContainerID);
-	}
-
-
-protected:
-	const PROPERTY_TABLE * GetPropertyTable(UINT & uLength)
-	{
-		uLength = LENGTHOF(AH_PROPERTY_TABLE);
-		return AH_PROPERTY_TABLE;
-	}
-};
-
-void AHPanelCallbackInit()
-{
-
-	AHPanelCallback * pPanelCallback = new AHPanelCallback();
-
-	if (pPanelCallback)
-	{
-		bool b = panel_register_c_callback(AH_CALLBACK_NAME, pPanelCallback);
-		pPanelCallback->Release();
-	}
-}
-
-void AHPanelCallbackDeInit()
-{
-	panel_register_c_callback(AH_CALLBACK_NAME, NULL);
-}
-
 class AHGaugeCallback : public IGaugeCCallback
 {
 	DECLARE_PANEL_CALLBACK_REFCOUNT(AHGaugeCallback);
@@ -386,37 +338,37 @@ public:
 	// Get Green HYD Pressure
 	double get_green_hyd_pressure()
 	{
-		return green_hyd_pressure;
+		return greenHydraulicSystem->getPressure();
 	}
 
 	// Get Green HYD Fluid Amount in percent
 	double get_green_hyd_fluid()
 	{
-		return green_hyd_fluid;
+		return greenHydraulicSystem->getFluid();
 	}
 
 	// Get Blue HYD Pressure
 	double get_blue_hyd_pressure()
 	{
-		return blue_hyd_pressure;
+		return blueHydraulicSystem->getPressure();
 	}
 
 	// Get Blue HYD HYD Fluid Amount in percent
 	double get_blue_hyd_fluid()
 	{
-		return blue_hyd_fluid;
+		return blueHydraulicSystem->getFluid();
 	}
 
 	// Get Yellow HYD Pressure
 	double get_yellow_hyd_pressure()
 	{
-		return yellow_hyd_pressure;
+		return yellowHydraulicSystem->getPressure();
 	}
 
 	// Get Yellow HYD HYD Fluid Amount in percent
 	double get_yellow_hyd_fluid()
 	{
-		return yellow_hyd_fluid;
+		return yellowHydraulicSystem->getFluid();
 	}
 
 	// Get Green HYD Fluid Leak Fail Status
@@ -467,6 +419,7 @@ public:
 		return yellow_hyd_pump_fail_switch;
 	}
 
+	// THIS IS NOT A SWITCH
 	// Get landing gear switch status
 	// might need more work here since LDG should not be operable if pressure is less than the required amount
 	bool get_landing_gear_switch()
@@ -474,6 +427,7 @@ public:
 		return landing_gear_switch;
 	}
 
+	// THIS IS NOT A SWITCH
 	// Get flight controls engagement switch status
 	// might need more work here since flight controls should not be operable if pressure is less than the required amount
 	bool get_flight_controls_switch()
@@ -488,19 +442,28 @@ public:
 	// Set Green HYD pump switch
 	void set_green_hyd_pump_switch(bool switch_state)
 	{
-		green_hyd_pump_switch = switch_state;
+		if (!greenHydraulicSystem->getIsPumpFailed())
+		{
+			green_hyd_pump_switch = switch_state;
+		}
 	}
 
 	// Set Blue HYD pump switch
 	void set_blue_hyd_pump_switch(bool switch_state)
 	{
-		blue_hyd_pump_switch;
+		if (!blueHydraulicSystem->getIsPumpFailed())
+		{
+			blue_hyd_pump_switch = switch_state;
+		}
 	}
 
 	// Set Yellow HYD pump switch
 	void set_yellow_hyd_pump_switch(bool switch_state)
 	{
-		yellow_hyd_pump_switch;
+		if (!yellowHydraulicSystem->getIsPumpFailed())
+		{
+			yellow_hyd_pump_switch = switch_state;
+		}
 	}
 
 	// Set Green HYD pressure
@@ -521,7 +484,7 @@ public:
 		blue_hyd_pressure = value;
 	}
 
-	// Set Blue HYD HYD fluid amount in percent
+	// Set Blue HYD fluid amount in percent
 	void set_blue_hyd_fluid(double value)
 	{
 		blue_hyd_fluid = value;
@@ -560,31 +523,52 @@ public:
 	// Set Green HYD pump fail status
 	void set_green_hyd_pump_fail_switch(bool switch_state)
 	{
+		if (switch_state == true)
+		{
+			green_hyd_pump_switch = false;
+		}
+
 		green_hyd_pump_fail_switch = switch_state;
 	}
 
 	// Set Blue HYD pump fail status
 	void set_blue_hyd_pump_fail_switch(bool switch_state)
 	{
+		if (switch_state == true)
+		{
+			blue_hyd_pump_switch = false;
+		}
+
 		blue_hyd_pump_fail_switch = switch_state;
 	}
 
 	// Set Yellow HYD pump fail status
 	void set_yellow_hyd_pump_fail_switch(bool switch_state)
 	{
+		if (switch_state == true)
+		{
+			yellow_hyd_pump_switch = false;
+		}
+
 		yellow_hyd_pump_fail_switch = switch_state;
 	}
 
 	// Set landing gear status
 	void set_landing_gear_switch(bool switch_state)
 	{
-		landing_gear_switch = switch_state;
+		if (greenHydraulicSystem->getPressure() >= 2800)
+		{
+			landing_gear_switch = switch_state;
+		}
 	}
 
 	// Set flight control engagement status
 	void set_flight_controls_switch(bool switch_state)
 	{
-		flight_controls_switch = switch_state;
+		if (!(greenHydraulicSystem->getPressure() > 2000 || blueHydraulicSystem->getPressure() > 2000 || yellowHydraulicSystem->getPressure() > 2000))
+		{
+			flight_controls_switch = false;
+		}
 	}
 
 private:
@@ -599,24 +583,24 @@ AHGaugeCallback::AHGaugeCallback(UINT32 containerId)
 	m_containerId(containerId)
 {
 	// Set initial states
-	green_hyd_pump_switch = true;
-	blue_hyd_pump_switch = true;
-	yellow_hyd_pump_switch = true;
-	green_hyd_fluid_leak_switch = false;
-	blue_hyd_fluid_leak_switch = false;
-	yellow_hyd_fluid_leak_switch = false;
-	green_hyd_pump_fail_switch = false;
-	blue_hyd_pump_fail_switch = false;
-	yellow_hyd_pump_fail_switch = false;
+	green_hyd_pump_switch = greenHydraulicSystem->getIsPumpActive();
+	blue_hyd_pump_switch = blueHydraulicSystem->getIsPumpActive();
+	yellow_hyd_pump_switch = yellowHydraulicSystem->getIsPumpActive();
+	green_hyd_fluid_leak_switch = greenHydraulicSystem->getIsLeaking();
+	blue_hyd_fluid_leak_switch = blueHydraulicSystem->getIsLeaking();
+	yellow_hyd_fluid_leak_switch = yellowHydraulicSystem->getIsLeaking();
+	green_hyd_pump_fail_switch = greenHydraulicSystem->getIsPumpFailed();
+	blue_hyd_pump_fail_switch = blueHydraulicSystem->getIsPumpFailed();
+	yellow_hyd_pump_fail_switch = yellowHydraulicSystem->getIsPumpFailed();
 	landing_gear_switch = true;
 	flight_controls_switch = true;
 
-	green_hyd_pressure = 3000.0f;
-	green_hyd_fluid = 100.0f;
-	blue_hyd_pressure = 3000.0f;
-	blue_hyd_fluid = 100.0f;
-	yellow_hyd_pressure = 3000.0f;
-	yellow_hyd_fluid = 100.0f;
+	green_hyd_pressure = greenHydraulicSystem->getPressure();
+	green_hyd_fluid = greenHydraulicSystem->getFluid();
+	blue_hyd_pressure = blueHydraulicSystem->getPressure();
+	blue_hyd_fluid = blueHydraulicSystem->getFluid();
+	yellow_hyd_pressure = yellowHydraulicSystem->getPressure();
+	yellow_hyd_fluid = yellowHydraulicSystem->getFluid();
 }
 IGaugeCCallback * AHGaugeCallback::QueryInterface(PCSTRINGZ pszInterface)
 {
@@ -738,49 +722,49 @@ bool AHGaugeCallback::SetPropertyValue(SINT32 id, FLOAT64 value)
 	switch (eAPVar)
 	{
 		case AH_GREEN_HYDRAULIC_PRESSURE:
-			set_green_hyd_pressure(value);
+			set_green_hyd_pressure(greenHydraulicSystem->getPressure());
 			break;
 		case AH_BLUE_HYDRAULIC_PRESSURE:
-			set_green_hyd_pressure(value);
+			set_blue_hyd_pressure(blueHydraulicSystem->getPressure());
 			break;
 		case AH_YELLOW_HYDRAULIC_PRESSURE:
-			set_green_hyd_pressure(value);
+			set_yellow_hyd_pressure(yellowHydraulicSystem->getPressure());
 			break;
 		case AH_GREEN_HYDRAULIC_FLUID:
-			set_green_hyd_pressure(value);
+			set_green_hyd_fluid(greenHydraulicSystem->getFluid());
 			break;
 		case AH_BLUE_HYDRAULIC_FLUID:
-			set_green_hyd_pressure(value);
+			set_blue_hyd_fluid(blueHydraulicSystem->getFluid());
 			break;
 		case AH_YELLOW_HYDRAULIC_FLUID:
-			set_green_hyd_pressure(value);
+			set_yellow_hyd_fluid(yellowHydraulicSystem->getFluid());
 			break;
 		case AH_GREEN_HYDRAULIC_PUMP_ACTIVE:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_green_hyd_pump_switch(static_cast<bool>(value));
 			break;
 		case AH_BLUE_HYDRAULIC_PUMP_ACTIVE:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_blue_hyd_pump_switch(static_cast<bool>(value));
 			break;
 		case AH_YELLOW_HYDRAULIC_PUMP_ACTIVE:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_yellow_hyd_pump_switch(static_cast<bool>(value));
 			break;
 		case AH_GREEN_HYDRAULIC_FLUID_LEAK:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_green_hyd_fluid_leak_switch(static_cast<bool>(value));
 			break;
 		case AH_BLUE_HYDRAULIC_FLUID_LEAK:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_blue_hyd_fluid_leak_switch(static_cast<bool>(value));
 			break;
 		case AH_YELLOW_HYDRAULIC_FLUID_LEAK:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_yellow_hyd_fluid_leak_switch(static_cast<bool>(value));
 			break;
 		case AH_GREEN_HYDRAULIC_PUMP_FAILURE:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_green_hyd_pump_fail_switch(static_cast<bool>(value));
 			break;
 		case AH_BLUE_HYDRAULIC_PUMP_FAILURE:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_blue_hyd_pump_fail_switch(static_cast<bool>(value));
 			break;
 		case AH_YELLOW_HYDRAULIC_PUMP_FAILURE:
-			set_green_hyd_pressure(static_cast<bool>(value));
+			set_yellow_hyd_pump_fail_switch(static_cast<bool>(value));
 			break;
 		case AH_LANDING_GEAR_STATUS:
 			set_landing_gear_switch(static_cast<bool>(value));
@@ -821,12 +805,12 @@ IGaugeCDrawable * AHGaugeCallback::CreateGaugeCDrawable(SINT32 id, const IGaugeC
 //
 // AircraftCallback Override
 //
-class APAircraftCallback : public AircraftCallback
+class AHAircraftCallback : public AircraftCallback
 {
 private:
 
 public:
-	APAircraftCallback(UINT32 ContainerID) : AircraftCallback(ContainerID)
+	AHAircraftCallback(UINT32 ContainerID) : AircraftCallback(ContainerID)
 	{
 	}
 	IGaugeCCallback * CreateGaugeCCallback()
@@ -834,6 +818,59 @@ public:
 		return new AHGaugeCallback(GetContainerId());
 	}
 };
+
+//
+// PanelCallback Override
+//
+
+class AHPanelCallback : public PanelCallback
+{
+public:
+
+	AHPanelCallback()
+
+	{
+		// init property table
+		for (int n = 0; n < LENGTHOF(AH_PROPERTY_TABLE); n++)
+		{
+			if (ImportTable.PANELSentry.fnptr != NULL &&
+				AH_PROPERTY_TABLE[n].units == UNITS_UNKNOWN)
+			{
+				AH_PROPERTY_TABLE[n].units = get_units_enum(AH_PROPERTY_TABLE[n].szUnitsName);
+			}
+		}
+	}
+
+	IAircraftCCallback * CreateAircraftCCallback(UINT32 ContainerID)
+	{
+		return new AHAircraftCallback(ContainerID);
+	}
+
+
+protected:
+	const PROPERTY_TABLE * GetPropertyTable(UINT & uLength)
+	{
+		uLength = LENGTHOF(AH_PROPERTY_TABLE);
+		return AH_PROPERTY_TABLE;
+	}
+};
+
+void AHPanelCallbackInit()
+{
+
+	AHPanelCallback * pPanelCallback = new AHPanelCallback();
+
+	if (pPanelCallback)
+	{
+		bool b = panel_register_c_callback(AH_CALLBACK_NAME, pPanelCallback);
+		pPanelCallback->Release();
+	}
+}
+
+void AHPanelCallbackDeInit()
+{
+	panel_register_c_callback(AH_CALLBACK_NAME, NULL);
+}
 
 // The Panels pointer will get filled in during the loading process
 // if this DLL is listed in DLL.XML
@@ -848,13 +885,29 @@ GAUGESIMPORT    ImportTable =
 
 
 
-void FSAPI DLLStart(void)
+void FSAPI module_init(void)
 {
+	greenHydraulicSystem = std::make_unique<GreenHydraulics>();
+	blueHydraulicSystem = std::make_unique<BlueHydraulics>();
+	yellowHydraulicSystem = std::make_unique<YellowHydraulics>();
+
+	if (NULL != Panels)
+	{
+		ImportTable.PANELSentry.fnptr = (PPANELS)Panels;
+		AHPanelCallbackInit();
+	}
+
 	OpenSimConnect();
 }
 
-void FSAPI DLLStop(void)
+void FSAPI module_deinit(void)
 {
+	greenHydraulicSystem.reset();
+	blueHydraulicSystem.reset();
+	yellowHydraulicSystem.reset();
+
+	AHPanelCallbackDeInit();
+
 	CloseSimConnect();
 }
 
@@ -867,8 +920,8 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD dwReason, LPVOID lpReserved)
 GAUGESLINKAGE   Linkage =
 {
 	0x00000013,
-	DLLStart,
-	DLLStop,
+	module_init,
+	module_deinit,
 	0,
 	0,
 
