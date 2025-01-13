@@ -100,10 +100,6 @@ public:
 
     // Stop pump failure simulation
     void stopPumpFail();
-
-protected:
-    // Regulate pressure automatically
-    void regulatePressure(double deltaTime);
 };
 
 #endif
