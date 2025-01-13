@@ -155,7 +155,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				{
 					if (yellow_hyd_pump_fail_state == true)
 					{
-						yellowHydraulicSystem->simulateLeak();
+						yellowHydraulicSystem->simulatePumpFail();
 					}
 					else
 					{
