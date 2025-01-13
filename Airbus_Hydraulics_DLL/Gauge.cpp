@@ -34,6 +34,7 @@ FLOAT64 blue_hyd_fluid;
 FLOAT64 yellow_hyd_pressure;
 FLOAT64 yellow_hyd_fluid;
 
+
 //State of system holds - these are the current states of the modes (not switch position)
 bool green_hyd_pump_state; 
 bool blue_hyd_pump_state;
@@ -425,7 +426,16 @@ public:
 	// might need more work here since LDG should not be operable if pressure is less than the required amount
 	bool get_landing_gear_switch()
 	{
-		return landing_gear_switch;
+		if (greenHydraulicSystem->getPressure() >= 2800)
+		{
+			landing_gear_switch = true;
+		}
+		else
+		{
+			landing_gear_switch = false;
+		}
+
+ 		return landing_gear_switch;
 	}
 
 	// THIS IS NOT A SWITCH
@@ -433,6 +443,15 @@ public:
 	// might need more work here since flight controls should not be operable if pressure is less than the required amount
 	bool get_flight_controls_switch()
 	{
+		if (!(greenHydraulicSystem->getPressure() > 1000 || blueHydraulicSystem->getPressure() > 1000 || yellowHydraulicSystem->getPressure() > 1000))
+		{
+			flight_controls_switch = false;
+		}
+		else
+		{
+			flight_controls_switch = true;
+		}
+
 		return flight_controls_switch;
 	}
 
@@ -470,6 +489,11 @@ public:
 	// Set Green HYD pressure
 	void set_green_hyd_pressure(double value)
 	{
+		if (greenHydraulicSystem->getPressure() < 2800)
+		{
+			landing_gear_switch = false;
+		}
+
 		green_hyd_pressure = value;
 	}
 
