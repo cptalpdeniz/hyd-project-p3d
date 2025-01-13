@@ -84,10 +84,10 @@
 	<!--SCREEN TEXT-->
 	<!--GREEN HYD-->
 	<Element id="GREEN_HYD_PRESSURE">
-		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="14"
-			Color="greenyellow" Adjust="Center" VerticalAdjust="Center">
-			<String>%((C:Airbus-Hydraulics:GreenHYDPressure))%!4d!</String>
 		<Position X="126" Y="138"/>
+		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="15"
+			Color="0x00FF42" Adjust="Center" VerticalAdjust="Center">
+			<String>%((C:Airbus-Hydraulics:GreenHYDPressure))%!4d! PSI</String>
 		</Text>
 	</Element>
 	<Element id="GREEN_HYD_FLUID">
@@ -100,10 +100,10 @@
 
 	<!--BLUE HYD-->
 	<Element id="BLUE_HYD_PRESSURE">
-		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="14"
-			Color="Blue" Adjust="Center" VerticalAdjust="Center">
-			<String>%((C:Airbus-Hydraulics:BlueHYDPressure))%!4d!</String>
 		<Position X="408" Y="137"/>
+		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="15"
+			Color="0xF7FF00" Adjust="Center" VerticalAdjust="Center">
+			<String>%((C:Airbus-Hydraulics:BlueHYDPressure))%!4d! PSI</String>
 		</Text>
 	</Element>
 	<Element id="BLUE_HYD_FLUID">
@@ -116,10 +116,10 @@
 
 	<!--YELLOW HYD-->
 	<Element id="YELLOW_HYD_PRESSURE">
-		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="14"
-			Color="Yellow" Adjust="Center" VerticalAdjust="Center">
-			<String>%((C:Airbus-Hydraulics:YellowHYDPressure))%!4d!</String>
 		<Position X="680" Y="136"/>
+		<Text X="125" Y="72" Bright="Yes" Length="10" Font="Arial" FontHeight="15"
+			Color="0x00D6FF" Adjust="Center" VerticalAdjust="Center">
+			<String>%((C:Airbus-Hydraulics:YellowHYDPressure))%!4d! PSI</String>
 		</Text>
 	</Element>
 	<Element id="YELLOW_HYD_FLUID">
