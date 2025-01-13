@@ -177,8 +177,8 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 						// if we don't have green hyd then we cannot apply brake
 						//double brakeValue = -16383;
 						DWORD brakeValueDWORD = 0;
-						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_AXIS_LEFT_BRAKE_SET, brakeValueDWORD, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
-						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_AXIS_RIGHT_BRAKE_SET, brakeValueDWORD, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_SIMOBJECT_TYPE_USER, EVENT_AXIS_LEFT_BRAKE_SET, brakeValueDWORD, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_SIMOBJECT_TYPE_USER, EVENT_AXIS_RIGHT_BRAKE_SET, brakeValueDWORD, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
 
 					}
 					break;
@@ -186,7 +186,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 				case EVENT_GEAR_TOGGLE:
 				{
-					SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_LANDING_GEAR, DEF_GEAR_POSITION, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_ONCE);
+					SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_LANDING_GEAR, DEF_GEAR_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
 					break;
 				}
 				
@@ -199,7 +199,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 					if ((greenHydraulicSystem->getFluid() < 1 || greenHydraulicSystem->getPressure() < 1000) && (blueHydraulicSystem->getFluid() < 1 || blueHydraulicSystem->getPressure() < 1000))
 					{
-						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_ELEVATOR_POSITION, DEF_ELEVATOR_POSITION, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_ONCE);
+						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_ELEVATOR_POSITION, DEF_ELEVATOR_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
 					}
 
 					break;
@@ -212,7 +212,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 					if ((greenHydraulicSystem->getFluid() < 1 || greenHydraulicSystem->getPressure() < 1000) && (blueHydraulicSystem->getFluid() < 1 || blueHydraulicSystem->getPressure() < 1000))
 					{
-						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_AILERON_POSITION, DEF_AILERON_POSITION, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_ONCE);
+						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_AILERON_POSITION, DEF_AILERON_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
 					}
 
 					break;
@@ -225,7 +225,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 					if ((greenHydraulicSystem->getFluid() < 1 || greenHydraulicSystem->getPressure() < 1000) && (blueHydraulicSystem->getFluid() < 1 || blueHydraulicSystem->getPressure() < 1000))
 					{
-						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_RUDDER_POSITION, DEF_RUDDER_POSITION, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_ONCE);
+						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_RUDDER_POSITION, DEF_RUDDER_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
 					}
 					break;
 				}
