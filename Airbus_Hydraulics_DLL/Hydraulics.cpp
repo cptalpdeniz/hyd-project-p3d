@@ -26,12 +26,32 @@ Hydraulics::~Hydraulics()
 void Hydraulics::startRegulator()
 {
     isRegulatorRunning = true;
+
     std::thread([this]() {
         while (isRegulatorRunning)
         {
             if (isPumpActive)
             {
-                regulatePressure(0.033); // 16ms time step (~60 FPS)
+                std::lock_guard<std::mutex> lock(pressureMutex);
+                
+                double deltaTime = 0.033;
+
+                if (fluidReservoir > 0.0 && pressure < NOMINAL_PRESSURE)
+                {
+                    // using this calculation, the pressure build up slows down the higher it gets closer to nominal 3000 value
+                    double recoveryRate = RECOVERY_FACTOR * (NOMINAL_PRESSURE - pressure);
+                    if (recoveryRate > MAX_RECOVERY_RATE)
+                    {
+                        recoveryRate = MAX_RECOVERY_RATE; // recovery rate cannot be too much
+                    }
+
+                    pressure += recoveryRate * deltaTime;
+                    if (pressure > NOMINAL_PRESSURE)
+                    {
+                        pressure = NOMINAL_PRESSURE; // pressure limit, no simulation of pressure relief valve however can be implemented in the future here
+                    }
+                }
+
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(33));
         }
@@ -118,28 +138,6 @@ bool Hydraulics::getIsPumpFailed()
 void Hydraulics::setIsPumpFailed(bool state)
 {
     isPumpFailed.store(state);
-}
-
-// Regulate pressure automatically
-void Hydraulics::regulatePressure(double deltaTime)
-{
-    std::lock_guard<std::mutex> lock(pressureMutex);
-
-    if (fluidReservoir > 0.0 && pressure < NOMINAL_PRESSURE)
-    {
-        // using this calculation, the pressure build up slows down the higher it gets closer to nominal 3000 value
-        double recoveryRate = RECOVERY_FACTOR * (NOMINAL_PRESSURE - pressure);
-        if (recoveryRate > MAX_RECOVERY_RATE)
-        {
-            recoveryRate = MAX_RECOVERY_RATE; // recovery rate cannot be too much
-        }
-
-        pressure += recoveryRate * deltaTime;
-        if (pressure > NOMINAL_PRESSURE)
-        {
-            pressure = NOMINAL_PRESSURE; // pressure limit, no simulation of pressure relief valve however can be implemented in the future here
-        }
-    }
 }
 
 // Simulate hydraulic fluid leak
