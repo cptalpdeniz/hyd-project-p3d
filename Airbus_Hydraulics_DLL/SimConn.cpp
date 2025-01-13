@@ -53,6 +53,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					{
 						greenHydraulicSystem->stopRegulator();
 					}
+
 					break;
 				}
 				case EVENT_BLUE_HYDRAULICS_PUMP_TOGGLE:
@@ -65,6 +66,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					{
 						blueHydraulicSystem->stopRegulator();
 					}
+
 					break;
 				}
 				case EVENT_YELLOW_HYDRAULICS_PUMP_TOGGLE:
@@ -77,6 +79,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					{
 						yellowHydraulicSystem->stopRegulator();
 					}
+
 					break;
 				}
 				case EVENT_GREEN_HYDRAULICS_FLUID_LEAK_TOGGLE:
@@ -87,8 +90,10 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					}
 					else
 					{
+						greenHydraulicSystem->setFluid(100.0);
 						greenHydraulicSystem->stopLeak();
 					}
+
 					break;
 				}
 				case EVENT_BLUE_HYDRAULICS_FLUID_LEAK_TOGGLE:
@@ -99,8 +104,10 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					}
 					else
 					{
+						blueHydraulicSystem->setFluid(100.0);
 						blueHydraulicSystem->stopLeak();
 					}
+
 					break;
 				}
 				case EVENT_YELLOW_HYDRAULICS_FLUID_LEAK_TOGGLE:
@@ -111,8 +118,10 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					}
 					else
 					{
+						yellowHydraulicSystem->setFluid(100.0);
 						yellowHydraulicSystem->stopLeak();
 					}
+
 					break;
 				}
 				case EVENT_GREEN_HYDRAULICS_PUMP_FAIL_TOGGLE:
@@ -125,6 +134,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					{
 						greenHydraulicSystem->stopPumpFail();
 					}
+
 					break;
 				}
 				case EVENT_BLUE_HYDRAULICS_PUMP_FAIL_TOGGLE:
@@ -137,6 +147,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					{
 						blueHydraulicSystem->stopPumpFail();
 					}
+
 					break;
 
 				}
@@ -150,6 +161,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					{
 						yellowHydraulicSystem->stopPumpFail();
 					}
+
 					break;
 				}
 				
