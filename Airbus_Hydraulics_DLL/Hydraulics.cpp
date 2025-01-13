@@ -14,6 +14,7 @@
 Hydraulics::Hydraulics(const std::string & name)
     : systemName(name), pressure(NOMINAL_PRESSURE), fluidReservoir(NOMINAL_FLUID_AMOUNT), isPumpActive(true), isRegulatorRunning(false), isPumpFailed(false)
 {
+    startRegulator();
 }
 
 // Make sure the regulator is stopped and thread is not running anymore
