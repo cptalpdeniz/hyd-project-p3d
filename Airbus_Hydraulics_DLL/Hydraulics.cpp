@@ -144,30 +144,42 @@ void Hydraulics::setIsPumpFailed(bool state)
 // Simulate hydraulic fluid leak
 void Hydraulics::simulateLeak()
 {
-    isLeaking = true;
+    isLeaking = true; //set leaking condition to true
 
     std::thread([this]() {
-        while (isLeaking && fluidReservoir > 0.0)
+        while (isLeaking)
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10)); // drip interval
+            std::this_thread::sleep_for(std::chrono::milliseconds(100)); //increased interval for better simulation
 
-            // lock both pressure and fluidReservoir simultaneously
-            std::scoped_lock<std::mutex, std::mutex> lock(pressureMutex, fluidReservoirMutex);
+            std::scoped_lock<std::mutex, std::mutex> lock(pressureMutex, fluidReservoirMutex); //lock both pressure and fluidReservoir simultaneously
 
-            fluidReservoir -= FLUID_DEPLETION_RATE;
-
-            if (fluidReservoir < 50.0)
+            //gradual fluid depletion
+            if (fluidReservoir > 0.0)
             {
-                pressure -= 0.1; // simulate pressure drop when fluid is depleted
-                if (pressure < 0.0)
-                {
-                    pressure = 0.0; // pressure can't go negative
-                }
+                fluidReservoir -= FLUID_DEPLETION_RATE;
 
                 if (fluidReservoir < 0.0)
                 {
-                    fluidReservoir = 0.0; // reservoir can't go negative
+                    fluidReservoir = 0.0; //Clamp to 0
                 }
+            }
+
+            //gradual pressure drop based on reservoir level
+            if (fluidReservoir <= 50.0) //start pressure drop when reservoir gets low
+            {
+                double pressureDropRate = (50.0 - fluidReservoir) / 50.0 * PRESSURE_DEPLETION_RATE; //leak based on the fluid and pressure values
+                pressure -= pressureDropRate;
+
+                if (pressure < 0.0)
+                {
+                    pressure = 0.0; //pressure cannot be negative
+                }
+            }
+
+            //stop simulation when fluid and pressure are both depleted
+            if (fluidReservoir <= 0.0 && pressure <= 0.0)
+            {
+                isLeaking = false;
             }
         }
         }).detach();
@@ -197,7 +209,7 @@ void Hydraulics::simulatePumpFail()
 
             if (pressure < 0.0)
             {
-                pressure = 0.0; // pressure can't go negative
+                pressure = 0.0; //pressure cannot be negative
             }
         }
         }).detach();
