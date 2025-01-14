@@ -69,5 +69,4 @@ void OpenSimConnect();
 void CloseSimConnect();
 void SendHydraulicsGaugeMode(EVENT_ID switch_event);
 
-
 #endif

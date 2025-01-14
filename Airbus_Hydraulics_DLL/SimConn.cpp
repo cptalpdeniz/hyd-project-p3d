@@ -268,25 +268,6 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 			std::cout << "SimConnect Exception: " << pException->dwException << std::endl;
 			break;
 		}
-		/*
-		case SIMCONNECT_RECV_ID_EVENT_FRAME:
-		{
-			SIMCONNECT_RECV_EVENT_FRAME* evt = (SIMCONNECT_RECV_EVENT_FRAME*)pData;
-			switch (evt->uEventID)
-			{
-
-				case EVENT_FRAME_TIMER:
-				{
-
-					break;
-				}
-
-				default:
-					break;
-			}
-			break;
-		}
-		*/
 
 		default:
 			break;
@@ -303,11 +284,6 @@ void OpenSimConnect()
 	{
 		std::cout << "\n(Airbus-Hydraulics Message): Airbus-Hydraulics connected to Prepar3D!\n";
 
-		/*
-		//Create a frame timer event
-		hr = SimConnect_SubscribeToSystemEvent(hAirbusHydraulicsGauge, EVENT_FRAME_TIMER, "6Hz"); //6Hz timer
-		hr = SimConnect_SetSystemEventState(hAirbusHydraulicsGauge, EVENT_FRAME_TIMER, SIMCONNECT_STATE_OFF);
-		*/
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_DISABLE_FLIGHT_CONTROLS, "Airbus.Hydraulics.SetFlightControls.DisableEvent");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_DISABLE_FLIGHT_CONTROLS);
@@ -364,13 +340,7 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_TOGGLE, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_SET, "GEAR_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_SET, false);
-
-		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AXIS_LEFT_BRAKE_SET, "AXIS_LEFT_BRAKE_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_LEFT_BRAKE_SET, true);
-
-		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AXIS_RIGHT_BRAKE_SET, "AXIS_RIGHT_BRAKE_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_RIGHT_BRAKE_SET, true);
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_GEAR_SET, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_UP, "GEAR_UP");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_UP, false);
