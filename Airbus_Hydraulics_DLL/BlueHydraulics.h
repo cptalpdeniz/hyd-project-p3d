@@ -7,7 +7,6 @@ class BlueHydraulics : public Hydraulics
 {
 public:
 	BlueHydraulics();
-	//void displayStatus() const override;
 };
 
 

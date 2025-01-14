@@ -7,8 +7,7 @@ class YellowHydraulics : public Hydraulics
 {
 public:
 	YellowHydraulics();
-	//void displayStatus() const override;
 };
 
 
-#endif // !1
+#endif

@@ -211,11 +211,3 @@ void Hydraulics::stopPumpFail()
     isPumpFailed = false;
     isPumpActive = true;
 }
-
-
-//// Display system status
-//void Hydraulics::displayStatus()
-//{
-//    std::lock_guard<std::mutex> lock(pressureMutex);
-//    std::cout << "System: " << systemName << " | Pressure: " << pressure << " PSI" << " | Fluid Reservoir: " << fluidReservoir << "%" << " | Pump: " << (isPumpActive ? "Active" : "Inactive") << std::endl;  // for debugging
-//}

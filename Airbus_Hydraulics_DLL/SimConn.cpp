@@ -3,8 +3,8 @@
 #include "SimConn.h"
 #include "Gauge.h"
 
-//SimConnect initializers
-int     quit = 0;
+
+//SimConnect related variables
 HANDLE  hAirbusHydraulicsGauge = NULL;
 
 void SendHydraulicsGaugeMode(EVENT_ID switch_event)
@@ -12,29 +12,9 @@ void SendHydraulicsGaugeMode(EVENT_ID switch_event)
 	SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, 0, switch_event, 0, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
 }
 
-double unsignedToInt(uint32_t uint)
-{
-	if (uint <= INT_MAX)
-	{
-		return static_cast<int>(uint);
-	}
-
-	if (uint >= INT_MIN)
-	{
-		return (static_cast<int>(uint - INT_MIN) + INT_MIN);
-	}
-}
-
-double calculatePercentage(double receivedData)
-{
-	return ((unsignedToInt((uint32_t)receivedData) + 16383.00) / 32766.00) * 100;
-}
-
 /*The main SimConnect callback loop*/
 void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pContext)
 {
-	//HRESULT hr;
-
 	switch (pData->dwID)
 	{
 		case SIMCONNECT_RECV_ID_EVENT:
