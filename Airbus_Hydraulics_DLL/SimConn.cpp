@@ -147,17 +147,22 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 				case EVENT_DISABLE_FLIGHT_CONTROLS:
 				{
- 					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET);
-					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_ELEVATOR_SET);
-					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_AILERONS_SET);
+ 					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_RUDDER_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_ELEVATOR_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_AILERONS_SET);
 
 					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_RUDDER_SET, true);
 					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_ELEVATOR_SET, true);
 					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_AILERONS_SET, true);
 
-				case EVENT_GEAR_TOGGLE:
-				{
-					SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_LANDING_GEAR, DEF_GEAR_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_RUDDER_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_ELEVATOR_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AILERON_SET);
+
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_RUDDER_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_ELEVATOR_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AILERON_SET, true);
+
 					break;
 				}
 
@@ -168,9 +173,18 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_AILERONS_SET);
 
 
-					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET, false);
-					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_ELEVATOR_SET, false);
-					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_AILERONS_SET, false);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_RUDDER_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_ELEVATOR_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_AILERONS_SET, true);
+
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_RUDDER_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_ELEVATOR_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AILERON_SET);
+
+
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_RUDDER_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_ELEVATOR_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AILERON_SET, true);
 
 					break;
 				}
@@ -325,13 +339,22 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_YELLOW_HYDRAULICS_PUMP_FAIL_TOGGLE);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AXIS_ELEVATOR_SET, "AXIS_ELEVATOR_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_ELEVATOR_SET, false);
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_ELEVATOR_SET, true);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AXIS_AILERONS_SET, "AXIS_AILERONS_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_AILERONS_SET, false);
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_AILERONS_SET, true);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AXIS_RUDDER_SET, "AXIS_RUDDER_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET, false);
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_RUDDER_SET, true);
+
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_ELEVATOR_SET, "ELEVATOR_SET");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_ELEVATOR_SET, true);
+
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AILERON_SET, "AILERON_SET");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AILERON_SET, true);
+
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_RUDDER_SET, "RUDDER_SET");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_RUDDER_SET, true);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_BRAKING_ACTION, "BRAKES");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_BRAKING_ACTION, false);
@@ -343,22 +366,22 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_GEAR_SET, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_UP, "GEAR_UP");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_UP, false);
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_GEAR_UP, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_DOWN, "GEAR_DOWN");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_DOWN, false);
-
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_GEAR_DOWN, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_TOGGLE_BRAKE_FAIL, "TOGGLE_TOTAL_BRAKE_FAILURE");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_TOGGLE_BRAKE_FAIL, false);
 		
 		
-		// Set notificaiton priority groups
+		//Define aircraft gear position
+		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_GEAR_POSITION, "GEAR HANDLE POSITION", "Bool", SIMCONNECT_DATATYPE_INT32);
+
+		//Set notificaiton priority groups
 		hr = SimConnect_SetNotificationGroupPriority(hAirbusHydraulicsGauge, GROUP_HIGHEST, SIMCONNECT_GROUP_PRIORITY_HIGHEST);
 		hr = SimConnect_SetNotificationGroupPriority(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, SIMCONNECT_GROUP_PRIORITY_HIGHEST_MASKABLE);
-				
-		// Define aircraft gear position
-		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_GEAR_POSITION, "GEAR HANDLE POSITION", "Bool", SIMCONNECT_DATATYPE_INT32);
+		hr = SimConnect_SetNotificationGroupPriority(hAirbusHydraulicsGauge, GROUP_STANDARD, SIMCONNECT_GROUP_PRIORITY_STANDARD);
 
 
 		//Define a callback in this dll so that the simulation can be notified of SimConnect events
