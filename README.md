@@ -6,7 +6,7 @@
 - A pressure regulator
 - Pump failure simulation
 - Fluid leak simulation
-- Affected systems such as brakes, landing gear retraction/extension and flight control engagement are modeled to a point
+- Affected systems such as brakes, landing gear retraction/extension and flight control engagement are modeled based on SimConnect Events
 
 
 ## Installation
