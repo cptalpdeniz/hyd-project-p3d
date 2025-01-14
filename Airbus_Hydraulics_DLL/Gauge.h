@@ -39,7 +39,7 @@ extern FLOAT64 blue_hyd_fluid;
 extern FLOAT64 yellow_hyd_pressure;
 extern FLOAT64 yellow_hyd_fluid;
 
-// State of the switches
+//State of the switches
 extern bool green_hyd_pump_state;
 extern bool blue_hyd_pump_state;
 extern bool yellow_hyd_pump_state;

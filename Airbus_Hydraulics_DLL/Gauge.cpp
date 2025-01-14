@@ -1,6 +1,6 @@
-// Parts of this code uses Lockheed Martin Prepar3D SDK sample
-// Copyright (c) 2010-2019 Lockheed Martin Corporation. All rights reserved.
-// Use of this file is bound by the PREPAR3D® SOFTWARE DEVELOPER KIT END USER LICENSE AGREEMENT
+//Parts of this code uses Lockheed Martin Prepar3D SDK sample
+//Copyright (c) 2010-2019 Lockheed Martin Corporation. All rights reserved.
+//Use of this file is bound by the PREPAR3D® SOFTWARE DEVELOPER KIT END USER LICENSE AGREEMENT
 
 #include "pch.h"
 
@@ -60,10 +60,10 @@ std::unique_ptr<YellowHydraulics> yellowHydraulicSystem;
 
 bool SetSwitchEvent(bool switch_in, bool hold_state, EVENT_ID switch_event)
 {
-	// Define a new hold state
+	//Define a new hold state
 	bool new_hold_state = hold_state;
 
-	// Set the SimConnect event only when the mode is changed
+	//Set the SimConnect event only when the mode is changed
 	if (switch_in == true)
 	{
 		if (!hold_state)
@@ -72,7 +72,7 @@ bool SetSwitchEvent(bool switch_in, bool hold_state, EVENT_ID switch_event)
 			SendHydraulicsGaugeMode(switch_event);
 		}
 	}
-	// switch OFF
+	//switch OFF
 	else
 	{
 		if (hold_state)
@@ -86,12 +86,12 @@ bool SetSwitchEvent(bool switch_in, bool hold_state, EVENT_ID switch_event)
 
 
 //----------------------------------------------------------------------------
-// START BOILERPLATE C++ GAUGE CALLBACKS - DO NOT MODIFY. TAKEN FROM P3D SDK 
-// "MIXED MODE GAUGE" EXAMPLE
+//START BOILERPLATE C++ GAUGE CALLBACKS - DO NOT MODIFY. TAKEN FROM P3D SDK 
+//"MIXED MODE GAUGE" EXAMPLE
 //----------------------------------------------------------------------------
 GAUGE_CALLBACK gauge_callback;
-// Note: The items in the property table correspond to the indices that
-// will be returned in the Get/Set Property functions
+//Note: The items in the property table correspond to the indices that
+//will be returned in the Get/Set Property functions
 struct PROPERTY_TABLE
 {
 	PCSTRINGZ szPropertyName;
@@ -99,10 +99,10 @@ struct PROPERTY_TABLE
 	ENUM units;
 };
 
-// 
-// PanelCallback is an abstract base class that can be overridden.  Implementors
-// should override the functions CreateAircraftCallback() as
-// well as GetPropertyTable.
+//
+//PanelCallback is an abstract base class that can be overridden.  Implementors
+//should override the functions CreateAircraftCallback() as
+//well as GetPropertyTable.
 class PanelCallback : public IPanelCCallback
 {
 	DECLARE_PANEL_CALLBACK_REFCOUNT(PanelCallback);
@@ -110,7 +110,7 @@ class PanelCallback : public IPanelCCallback
 public:
 	PanelCallback();
 
-	// ******* IPanelCCallback Methods *****************    
+	//******* IPanelCCallback Methods *****************    
 	IPanelCCallback * QueryInterface(PCSTRINGZ pszInterface);
 	UINT32 GetVersion();
 	bool ConvertStringToProperty(PCSTRINGZ keyword, SINT32 * pID);
@@ -118,20 +118,20 @@ public:
 	bool GetPropertyUnits(SINT32 id, ENUM * pEnum);
 
 protected:
-	// ******** PanelCallback Methods ******************
+	//******** PanelCallback Methods ******************
 	virtual const PROPERTY_TABLE * GetPropertyTable(UINT & uLength) = 0;
 };
 
-// 
-// AircraftCallback is an abstract base class that can be overridden.  Implementors
-// should override the function CreateGaugeCCallback(UINT32 ContainerId)
+//
+//AircraftCallback is an abstract base class that can be overridden.  Implementors
+//should override the function CreateGaugeCCallback(UINT32 ContainerId)
 class AircraftCallback : public IAircraftCCallback
 {
 	DECLARE_PANEL_CALLBACK_REFCOUNT(AircraftCallback);
 public:
 	AircraftCallback(UINT32 containerId);
 
-	// ******* IAircraftCCallback Methods ************* 
+	//******* IAircraftCCallback Methods ************* 
 	IAircraftCCallback * QueryInterface(PCSTRINGZ pszInterface);
 	void Update();
 
@@ -141,7 +141,7 @@ protected:
 private:
 	UINT32 m_containerId;
 };
-// End of paneldefs.h
+//End of paneldefs.h
 DEFINE_PANEL_CALLBACK_REFCOUNT(PanelCallback);
 
 PanelCallback::PanelCallback()
@@ -243,12 +243,13 @@ UINT32 AircraftCallback::GetContainerId() const
 	return m_containerId;
 }
 //----------------------------------------------------------------------------
-// STOP BOILERPLATE C++ GAUGE CALLBACKS - DO NOT MODIFY. TAKEN FROM P3D SDK 
-// "MIXED MODE GAUGE" EXAMPLE
+//STOP BOILERPLATE C++ GAUGE CALLBACKS - DO NOT MODIFY. TAKEN FROM P3D SDK 
+//"MIXED MODE GAUGE" EXAMPLE
 //----------------------------------------------------------------------------
 
 static const char AH_CALLBACK_NAME[] = "Airbus-Hydraulics";
 
+//PROPERTY TABLE array that contains the properties of the variables defined in the XML file
 static PROPERTY_TABLE AH_PROPERTY_TABLE[] =
 {
 	{"GreenHYDPressure", "PSI", UNITS_NUMBER},
@@ -271,7 +272,7 @@ static PROPERTY_TABLE AH_PROPERTY_TABLE[] =
 	{"BrakeStatusLamp", "Bool", UNITS_UNKNOWN}
 };
 
-// Enum that contains the properties 
+//Enum that contains the properties 
 enum AH_VAR
 {
 	AH_GREEN_HYDRAULIC_PRESSURE,
@@ -301,7 +302,7 @@ class AHGaugeCallback : public IGaugeCCallback
 public:
 	AHGaugeCallback(UINT32 containerId);
 
-	// ************* IGaugeCCallback Methods ***************
+	//************* IGaugeCCallback Methods ***************
 	IGaugeCCallback * QueryInterface(PCSTRINGZ pszInterface);
 	void Update();
 	bool GetPropertyValue(SINT32 id, FLOAT64 * pValue);
@@ -317,7 +318,10 @@ public:
 	* Gauge return functions (GET) - these get called during the 18Hz polling to update the gauge values
 	*/
 
-	// Get Green HYD pump switch
+	/* Get Green HYD pump switch
+	* Calls SetSwitchEvent() to invoke SimConnect EVENT_GREEN_HYDRAULICS_PUMP_TOGGLE
+	@return [bool] Yellow HYD pump switch
+	*/
 	bool get_green_hyd_pump_switch()
 	{
 		green_hyd_pump_state = SetSwitchEvent(green_hyd_pump_switch, green_hyd_pump_state, EVENT_GREEN_HYDRAULICS_PUMP_TOGGLE);
@@ -325,7 +329,10 @@ public:
 		return green_hyd_pump_switch;
 	}
 
-	// Get Blue HYD pump switch
+	/* Get Blue HYD pump switch
+	* Calls SetSwitchEvent() to invoke SimConnect EVENT_BLUE_HYDRAULICS_PUMP_TOGGLE
+	@return [bool] Yellow HYD pump switch
+	*/
 	bool get_blue_hyd_pump_switch()
 	{
 		blue_hyd_pump_state = SetSwitchEvent(blue_hyd_pump_switch, blue_hyd_pump_state, EVENT_BLUE_HYDRAULICS_PUMP_TOGGLE);
@@ -333,7 +340,10 @@ public:
 		return blue_hyd_pump_switch;
 	}
 
-	// Get Yellow HYD pump switch
+	/* Get Yellow HYD pump switch.
+	* Calls SetSwitchEvent() to invoke SimConnect EVENT_YELLOW_HYDRAULICS_PUMP_TOGGLE
+	@return [bool] Yellow HYD pump switch
+	*/
 	bool get_yellow_hyd_pump_switch()
 	{
 		yellow_hyd_pump_state = SetSwitchEvent(yellow_hyd_pump_switch, yellow_hyd_pump_state, EVENT_YELLOW_HYDRAULICS_PUMP_TOGGLE);
@@ -341,43 +351,59 @@ public:
 		return yellow_hyd_pump_switch;
 	}
 
-	// Get Green HYD Pressure
+	/* Get Green HYD Pressure
+	@return [double] Green HYD pressure (PSI)
+	*/
 	double get_green_hyd_pressure()
 	{
 		return greenHydraulicSystem->getPressure();
 	}
 
-	// Get Green HYD Fluid Amount in percent
+	/* Get Green HYD fluid amount in percent
+	@return [double] Green HYD fluid amount in 2 decimals (%)
+	*/
 	double get_green_hyd_fluid()
 	{
 		return greenHydraulicSystem->getFluid();
 	}
 
-	// Get Blue HYD Pressure
+	/* Get Blue HYD Pressure
+	@return [double] Blue HYD pressure (PSI)
+	*/
 	double get_blue_hyd_pressure()
 	{
 		return blueHydraulicSystem->getPressure();
 	}
 
-	// Get Blue HYD HYD Fluid Amount in percent
+	/* Get Blue HYD fluid amount in percent
+	@return [double] Blue HYD fluid amount in 2 decimals (%)
+	*/
 	double get_blue_hyd_fluid()
 	{
 		return blueHydraulicSystem->getFluid();
 	}
 
-	// Get Yellow HYD Pressure
+	/* Get Yellow HYD Pressure
+	@return [double] Yellow HYD pressure (PSI)
+	*/
 	double get_yellow_hyd_pressure()
 	{
 		return yellowHydraulicSystem->getPressure();
 	}
 
-	// Get Yellow HYD HYD Fluid Amount in percent
+
+	/* Get Yellow HYD fluid amount in percent
+	@return [double] Yellow HYD fluid amount in 2 decimals (%)
+	*/
 	double get_yellow_hyd_fluid()
 	{
 		return yellowHydraulicSystem->getFluid();
 	}
 
-	// Get Green HYD Fluid Leak Fail Status
+	/* Get Green HYD fluid leak fail status.
+	* Calls SetSwitchEvent() to update status and invoke SimConnect EVENT_GREEN_HYDRAULICS_FLUID_LEAK_TOGGLE if switch has been clicked
+	@return [bool] green_hyd_fluid_leak_switch : true if pump fail switch has been pressed and state is on
+	*/
 	bool get_green_hyd_fluid_leak_switch()
 	{
 		green_hyd_fluid_leak_state = SetSwitchEvent(green_hyd_fluid_leak_switch, green_hyd_fluid_leak_state, EVENT_GREEN_HYDRAULICS_FLUID_LEAK_TOGGLE);
@@ -385,7 +411,10 @@ public:
 		return green_hyd_fluid_leak_switch;
 	}
 
-	// Get Blue HYD Fluid Leak Fail Status
+	/* Get Blue HYD fluid leak fail status.
+	* Calls SetSwitchEvent() to update status and invoke SimConnect EVENT_BLUE_HYDRAULICS_FLUID_LEAK_TOGGLE if switch has been clicked
+	@return [bool] blue_hyd_fluid_leak_switch : true if pump fail switch has been pressed and state is on
+	*/
 	bool get_blue_hyd_fluid_leak_switch()
 	{
 		blue_hyd_fluid_leak_state = SetSwitchEvent(blue_hyd_fluid_leak_switch, blue_hyd_fluid_leak_state, EVENT_BLUE_HYDRAULICS_FLUID_LEAK_TOGGLE);
@@ -393,7 +422,10 @@ public:
 		return blue_hyd_fluid_leak_switch;
 	}
 
-	// Get Yellow HYD Fluid Leak Fail Status
+	/* Get Yellow HYD fluid leak fail status.
+	* Calls SetSwitchEvent() to update status and invoke SimConnect EVENT_YELLOW_HYDRAULICS_FLUID_LEAK_TOGGLE if switch has been clicked
+	@return [bool] yellow_hyd_fluid_leak_switch : true if pump fail switch has been pressed and state is on
+	*/
 	bool get_yellow_hyd_fluid_leak_switch()
 	{
 		yellow_hyd_fluid_leak_state = SetSwitchEvent(yellow_hyd_fluid_leak_switch, yellow_hyd_fluid_leak_state, EVENT_YELLOW_HYDRAULICS_FLUID_LEAK_TOGGLE);
@@ -401,7 +433,10 @@ public:
 		return yellow_hyd_fluid_leak_switch;
 	}
 
-	// Get Green HYD Pump Fail Status
+	/* Get Green HYD pump fail status.
+	* Calls SetSwitchEvent() to update status and invoke SimConnect EVENT_GREEN_HYDRAULICS_PUMP_FAIL_TOGGLE if switch has been clicked
+	@return [bool] green_hyd_pump_fail_state : true if pump fail switch has been pressed and state is on
+	*/
 	bool get_green_hyd_pump_fail_switch()
 	{
 		green_hyd_pump_fail_state = SetSwitchEvent(green_hyd_pump_fail_switch, green_hyd_pump_fail_state, EVENT_GREEN_HYDRAULICS_PUMP_FAIL_TOGGLE);
@@ -409,7 +444,10 @@ public:
 		return green_hyd_pump_fail_switch;
 	}
 
-	// Get Blue HYD Pump Fail Status
+	/* Get Blue HYD pump fail status.
+	* Calls SetSwitchEvent() to update status and invoke SimConnect EVENT_BLUE_HYDRAULICS_PUMP_FAIL_TOGGLE if switch has been clicked
+	@return [bool] blue_hyd_pump_fail_switch : true if pump fail switch has been pressed and state is on
+	*/
 	bool get_blue_hyd_pump_fail_switch()
 	{
 		blue_hyd_pump_fail_state = SetSwitchEvent(blue_hyd_pump_fail_switch, blue_hyd_pump_fail_state, EVENT_BLUE_HYDRAULICS_PUMP_FAIL_TOGGLE);
@@ -417,7 +455,10 @@ public:
 		return blue_hyd_pump_fail_switch;
 	}
 
-	// Get Yellow HYD Pump Fail Status
+	/* Get Yellow HYD pump fail status.
+	* Calls SetSwitchEvent() to update status and invoke SimConnect EVENT_YELLOW_HYDRAULICS_PUMP_FAIL_TOGGLE if switch has been clicked
+	@return [bool] yellow_hyd_pump_fail_switch : true if pump fail switch has been pressed and state is on
+	*/
 	bool get_yellow_hyd_pump_fail_switch()
 	{
 		yellow_hyd_pump_fail_state = SetSwitchEvent(yellow_hyd_pump_fail_switch, yellow_hyd_pump_fail_state, EVENT_YELLOW_HYDRAULICS_PUMP_FAIL_TOGGLE);
@@ -425,9 +466,10 @@ public:
 		return yellow_hyd_pump_fail_switch;
 	}
 
-	// THIS IS NOT A SWITCH
-	// Get landing gear switch status
-	// might need more work here since LDG should not be operable if pressure is less than the required amount
+	// NOT A SWITCH - NAME KEPT AS SWITCH FOR CONVENTION
+	/* Get the Landing Gear switch value to set the panel
+	@return [bool] landing_gear_switch : true if Green HYD pressure >= 2800
+	*/
 	bool get_landing_gear_switch()
 	{
 		if (greenHydraulicSystem->getPressure() >= 2800)
@@ -442,9 +484,11 @@ public:
  		return landing_gear_switch;
 	}
 
-	// THIS IS NOT A SWITCH
-	// Get flight controls engagement switch status
-	// might need more work here since flight controls should not be operable if pressure is less than the required amount
+	// NOT A SWITCH - NAME KEPT AS SWITCH FOR CONVENTION
+	/* Get the Flight Control Status switch value to set the panel.
+	* Calls SetSwitchEvent() to update status and invoke necessary ENABLE/DISABLE FLIGHT CONTROL event based on system pressures.
+	@return [bool] flight_controls_switch : true if any of the systems have more than 1000 PSI
+	*/
 	bool get_flight_controls_switch()
 	{
 		if (!(greenHydraulicSystem->getPressure() > 1000 || blueHydraulicSystem->getPressure() > 1000 || yellowHydraulicSystem->getPressure() > 1000))
@@ -461,7 +505,11 @@ public:
 		return flight_controls_switch;
 	}
 
-
+	// NOT A SWITCH - NAME KEPT AS SWITCH FOR CONVENTION
+	/* Get the Brake Status switch value to set the panel.
+	* Calls SetSwitchEvent() to update status and invoke necessary ENABLE/DISABLE BRAKES event based on system pressures.
+	@return [bool] brake_switch : true if green system has more than 1000 PSI and has more then 5% fluid
+	*/
 	bool get_brake_switch()
 	{
 		if (!(greenHydraulicSystem->getPressure() > 1000 && greenHydraulicSystem->getFluid() > 5))
@@ -482,7 +530,7 @@ public:
 	* SETTER FUNCTIONS
 	* Gauge assignment functions (SET) - these are called when updated
 	*/
-	// Set Green HYD pump switch
+	//Set Green HYD pump switch
 	void set_green_hyd_pump_switch(bool switch_state)
 	{
 		if (!greenHydraulicSystem->getIsPumpFailed())
@@ -491,7 +539,7 @@ public:
 		}
 	}
 
-	// Set Blue HYD pump switch
+	//Set Blue HYD pump switch
 	void set_blue_hyd_pump_switch(bool switch_state)
 	{
 		if (!blueHydraulicSystem->getIsPumpFailed())
@@ -500,7 +548,7 @@ public:
 		}
 	}
 
-	// Set Yellow HYD pump switch
+	//Set Yellow HYD pump switch
 	void set_yellow_hyd_pump_switch(bool switch_state)
 	{
 		if (!yellowHydraulicSystem->getIsPumpFailed())
@@ -509,7 +557,7 @@ public:
 		}
 	}
 
-	// Set Green HYD pressure
+	//Set Green HYD pressure
 	void set_green_hyd_pressure(double value)
 	{
 		if (greenHydraulicSystem->getPressure() < 2800)
@@ -520,55 +568,55 @@ public:
 		green_hyd_pressure = value;
 	}
 
-	// Set Green HYD fluid amount in percent
+	//Set Green HYD fluid amount in percent
 	void set_green_hyd_fluid(double value)
 	{
 		green_hyd_fluid = value;
 	}
 
-	// Set Blue HYD pressure
+	//Set Blue HYD pressure
 	void set_blue_hyd_pressure(double value)
 	{
 		blue_hyd_pressure = value;
 	}
 
-	// Set Blue HYD fluid amount in percent
+	//Set Blue HYD fluid amount in percent
 	void set_blue_hyd_fluid(double value)
 	{
 		blue_hyd_fluid = value;
 	}
 
-	// Set Yellow HYD pressure
+	//Set Yellow HYD pressure
 	void set_yellow_hyd_pressure(double value)
 	{
 		yellow_hyd_pressure = value;
 	}
 
-	// Set Yellow HYD HYD fluid amount in percent
+	//Set Yellow HYD HYD fluid amount in percent
 	void set_yellow_hyd_fluid(double value)
 	{
 		yellow_hyd_fluid = value;
 	}
 
-	// Set Green HYD fluid leak fail status
+	//Set Green HYD fluid leak fail status
 	void set_green_hyd_fluid_leak_switch(bool switch_state)
 	{
 		green_hyd_fluid_leak_switch = switch_state;
 	}
 
-	// Set Blue HYD fluid leak fail status
+	//Set Blue HYD fluid leak fail status
 	void set_blue_hyd_fluid_leak_switch(bool switch_state)
 	{
 		blue_hyd_fluid_leak_switch = switch_state;
 	}
 
-	// Set Yellow HYD fluid leak fail status
+	//Set Yellow HYD fluid leak fail status
 	void set_yellow_hyd_fluid_leak_switch(bool switch_state)
 	{
 		yellow_hyd_fluid_leak_switch = switch_state;
 	}
 
-	// Set Green HYD pump fail status
+	//Set Green HYD pump fail status
 	void set_green_hyd_pump_fail_switch(bool switch_state)
 	{
 		if (switch_state == true)
@@ -579,7 +627,7 @@ public:
 		green_hyd_pump_fail_switch = switch_state;
 	}
 
-	// Set Blue HYD pump fail status
+	//Set Blue HYD pump fail status
 	void set_blue_hyd_pump_fail_switch(bool switch_state)
 	{
 		if (switch_state == true)
@@ -590,7 +638,7 @@ public:
 		blue_hyd_pump_fail_switch = switch_state;
 	}
 
-	// Set Yellow HYD pump fail status
+	//Set Yellow HYD pump fail status
 	void set_yellow_hyd_pump_fail_switch(bool switch_state)
 	{
  		if (switch_state == true)
@@ -601,7 +649,7 @@ public:
 		yellow_hyd_pump_fail_switch = switch_state;
 	}
 
-	// Set landing gear status
+	//Set landing gear status
 	void set_landing_gear_switch(bool switch_state)
 	{
 		if (greenHydraulicSystem->getPressure() >= 2800)
@@ -614,7 +662,7 @@ public:
 		}
 	}
 
-	// Set flight control engagement status
+	//Set flight control engagement status
 	void set_flight_controls_switch(bool switch_state)
 	{
 		if (!(greenHydraulicSystem->getPressure() > 1000 || blueHydraulicSystem->getPressure() > 10000 || yellowHydraulicSystem->getPressure() > 1000))
@@ -651,7 +699,7 @@ AHGaugeCallback::AHGaugeCallback(UINT32 containerId)
 	: m_RefCount(1),
 	m_containerId(containerId)
 {
-	// Set initial states
+	//Set initial states
 	green_hyd_pump_switch = greenHydraulicSystem->getIsPumpActive();
 	blue_hyd_pump_switch = blueHydraulicSystem->getIsPumpActive();
 	yellow_hyd_pump_switch = yellowHydraulicSystem->getIsPumpActive();
@@ -677,14 +725,14 @@ IGaugeCCallback * AHGaugeCallback::QueryInterface(PCSTRINGZ pszInterface)
 	return NULL;
 }
 //
-// The Update functions is called on a 18Hz cycle
+//The Update functions is called on a 18Hz cycle
 //
 void AHGaugeCallback::Update()
 {
 	unsigned int	random;
 }
 //
-// Getting float/numeric values
+//Getting float/numeric values
 //
 bool AHGaugeCallback::GetPropertyValue(SINT32 id, FLOAT64 * pValue)
 {
@@ -693,7 +741,7 @@ bool AHGaugeCallback::GetPropertyValue(SINT32 id, FLOAT64 * pValue)
 		return false;
 	}
 
-	*pValue = 1.0;      // Start with a reasonable default (by the SDK?)
+	*pValue = 1.0;      //Start with a reasonable default (by the SDK?)
 
 	AH_VAR eAPVar = (AH_VAR)id;
 
@@ -759,7 +807,7 @@ bool AHGaugeCallback::GetPropertyValue(SINT32 id, FLOAT64 * pValue)
 	return true;
 }
 //
-// Getting string property values (N/A BUT LEAVE SCAFFOLING IN CASE YOU WANT TO ADD A REGULAR STRING)
+//Getting string property values (N/A BUT LEAVE SCAFFOLING IN CASE YOU WANT TO ADD A REGULAR STRING)
 //
 bool AHGaugeCallback::GetPropertyValue(SINT32 id, LPCSTR * pszValue)
 {
@@ -774,7 +822,7 @@ bool AHGaugeCallback::GetPropertyValue(SINT32 id, LPCWSTR * pszValue)
 		return false;
 	}
 
-	*pszValue = TEXT("null");     // Return a reasonable default
+	*pszValue = TEXT("null");     //Return a reasonable default
 
 	AH_VAR eAPVar = (AH_VAR)id;
 
@@ -786,7 +834,7 @@ bool AHGaugeCallback::GetPropertyValue(SINT32 id, LPCWSTR * pszValue)
 	return true;
 }
 //
-// Setting float/numeric values
+//Setting float/numeric values
 //
 bool AHGaugeCallback::SetPropertyValue(SINT32 id, FLOAT64 value)
 {
@@ -855,11 +903,11 @@ bool AHGaugeCallback::SetPropertyValue(SINT32 id, FLOAT64 value)
 }
 
 //
-// Setting string values
+//Setting string values
 //
 bool AHGaugeCallback::SetPropertyValue(SINT32 id, LPCSTR szValue)
 {
-	return false;   // String properties not permitted to be set
+	return false;   //String properties not permitted to be set
 }
 bool AHGaugeCallback::SetPropertyValue(SINT32 id, LPCWSTR szValue)
 {
@@ -870,16 +918,16 @@ bool AHGaugeCallback::SetPropertyValue(SINT32 id, LPCWSTR szValue)
 
 	}
 
-	return false;   // String properties not permitted to be set
+	return false;   //String properties not permitted to be set
 }
 
 IGaugeCDrawable * AHGaugeCallback::CreateGaugeCDrawable(SINT32 id, const IGaugeCDrawableCreateParameters * pParameters)
 {
-	return NULL;	// No implementation of this necessary
+	return NULL;	//No implementation of this necessary
 }
 
 //
-// AircraftCallback Override
+//AircraftCallback Override
 //
 class AHAircraftCallback : public AircraftCallback
 {
@@ -896,7 +944,7 @@ public:
 };
 
 //
-// PanelCallback Override
+//PanelCallback Override
 //
 
 class AHPanelCallback : public PanelCallback
@@ -906,7 +954,7 @@ public:
 	AHPanelCallback()
 
 	{
-		// init property table
+		//init property table
 		for (int n = 0; n < LENGTHOF(AH_PROPERTY_TABLE); n++)
 		{
 			if (ImportTable.PANELSentry.fnptr != NULL &&
@@ -948,8 +996,8 @@ void AHPanelCallbackDeInit()
 	panel_register_c_callback(AH_CALLBACK_NAME, NULL);
 }
 
-// The Panels pointer will get filled in during the loading process
-// if this DLL is listed in DLL.XML
+//The Panels pointer will get filled in during the loading process
+//if this DLL is listed in DLL.XML
 
 PPANELS Panels = NULL;
 
@@ -963,11 +1011,12 @@ GAUGESIMPORT    ImportTable =
 
 void FSAPI module_init(void)
 {
+	//instantiate hydraulic systems
 	greenHydraulicSystem = std::make_unique<GreenHydraulics>();
 	blueHydraulicSystem = std::make_unique<BlueHydraulics>();
 	yellowHydraulicSystem = std::make_unique<YellowHydraulics>();
 
-
+	//initialize state variables based on the systems themselves
 	green_hyd_pump_state = greenHydraulicSystem->getIsPumpActive();
 	blue_hyd_pump_state = blueHydraulicSystem->getIsPumpActive();
 	yellow_hyd_pump_state = yellowHydraulicSystem->getIsPumpActive();
@@ -1009,7 +1058,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLL, DWORD dwReason, LPVOID lpReserved)
 	return TRUE;
 }
 
-// This is the module's export table.
+//This is the module's export table.
 GAUGESLINKAGE   Linkage =
 {
 	0x00000013,

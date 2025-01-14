@@ -4,9 +4,12 @@
 #include "Gauge.h"
 
 
-//SimConnect related variables
+//SimConnect related variable
 HANDLE  hAirbusHydraulicsGauge = NULL;
 
+/* Event Invoker for the switch clicks
+@param [enum] switch_event: SimConnect EVENT_ID
+*/
 void SendHydraulicsGaugeMode(EVENT_ID switch_event)
 {
 	SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, 0, switch_event, 0, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
@@ -25,6 +28,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 			{
 				case EVENT_GREEN_HYDRAULICS_PUMP_TOGGLE:
 				{
+					//if state is true, start the regulator to increase pressure
 					if (green_hyd_pump_state == true)
 					{
 						greenHydraulicSystem->startRegulator();
@@ -38,6 +42,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_BLUE_HYDRAULICS_PUMP_TOGGLE:
 				{
+					//if state is true, start the regulator to increase pressure
 					if (blue_hyd_pump_state == true)
 					{
 						blueHydraulicSystem->startRegulator();
@@ -51,6 +56,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_YELLOW_HYDRAULICS_PUMP_TOGGLE:
 				{
+					//if state is true, start the regulator to increase pressure
 					if (yellow_hyd_pump_state == true)
 					{
 						yellowHydraulicSystem->startRegulator();
@@ -64,6 +70,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_GREEN_HYDRAULICS_FLUID_LEAK_TOGGLE:
 				{
+					//if state is true, start the fluid leak simulation by calling the respective simulateLeak() function
 					if (green_hyd_fluid_leak_state == true)
 					{
 						greenHydraulicSystem->simulateLeak();
@@ -78,6 +85,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_BLUE_HYDRAULICS_FLUID_LEAK_TOGGLE:
 				{
+					//if state is true, start the fluid leak simulation by calling the respective simulateLeak() function
 					if (blue_hyd_fluid_leak_state == true)
 					{
 						blueHydraulicSystem->simulateLeak();
@@ -92,6 +100,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_YELLOW_HYDRAULICS_FLUID_LEAK_TOGGLE:
 				{
+					//if state is true, start the fluid leak simulation by calling the respective simulateLeak() function
 					if (yellow_hyd_fluid_leak_state == true)
 					{
 						yellowHydraulicSystem->simulateLeak();
@@ -106,6 +115,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_GREEN_HYDRAULICS_PUMP_FAIL_TOGGLE:
 				{
+					//if state is true, start the pump failure simulation by calling the respective simulatePumpFail() function
 					if (green_hyd_pump_fail_state == true)
 					{
 						greenHydraulicSystem->simulatePumpFail();
@@ -119,6 +129,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_BLUE_HYDRAULICS_PUMP_FAIL_TOGGLE:
 				{
+					//if state is true, start the pump failure simulation by calling the respective simulatePumpFail() function
 					if (blue_hyd_pump_fail_state == true)
 					{
 						blueHydraulicSystem->simulatePumpFail();
@@ -133,6 +144,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 				}
 				case EVENT_YELLOW_HYDRAULICS_PUMP_FAIL_TOGGLE:
 				{
+					//if state is true, start the pump failure simulation by calling the respective simulatePumpFail() function
 					if (yellow_hyd_pump_fail_state == true)
 					{
 						yellowHydraulicSystem->simulatePumpFail();
@@ -145,6 +157,8 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					break;
 				}
 
+				//Disable flight controls by masking all AXIS and input/set events of primary flight control surfaces (ELEVATOR, AILERON, RUDDER)
+				//a better and more consistent, custom solution could be made however would require a lot of work with not just the gauge but combination of the model, animations etc.
 				case EVENT_DISABLE_FLIGHT_CONTROLS:
 				{
  					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_AXIS_RUDDER_SET);
@@ -166,6 +180,8 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					break;
 				}
 
+				//Enable flight controls by setting higher notification priority, removing masking on all AXIS and input/set events of primary flight control surfaces (ELEVATOR, AILERON, RUDDER)
+				//a better and more consistent, custom solution could be made however would require a lot of work with not just the gauge but combination of the model, animations etc.
 				case EVENT_ENABLE_FLIGHT_CONTROLS:
 				{
 					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_RUDDER_SET);
@@ -189,6 +205,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					break;
 				}
 
+				//Different approach compared to flight controls, more cases to handle and gear position is required.
 				case EVENT_GEAR_TOGGLE:
 				{
 					SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_LANDING_GEAR, DEF_GEAR_POSITION, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_ONCE);
@@ -196,18 +213,19 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					break;
 				}
 
-				
+				//Handle braking by checking for Green HYD system status and applying braking (pressure drop simulation)
 				case EVENT_BRAKING_ACTION:
 				{
 					if (greenHydraulicSystem->getFluid() > 0 && greenHydraulicSystem->getPressure() > 1000)
 					{
-						std::cout << " | BRAKING + " << evt->dwData;
-
 						greenHydraulicSystem->applyBraking(0.0333); //calling for 30 fps timer
 					}
 					break;
 				}
 				
+				//Handle disabling of the brakes by toggling brake failure
+				//there is no way to mask brake events hence failure methodology
+				//there is probably better way to do this, however I was not able to find any examples or come up with something that works consistently like this one
 				case EVENT_DISABLE_BRAKES:
 				{
 					SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_TOGGLE_BRAKE_FAIL, 1, GROUP_HIGHEST, 0);
@@ -218,6 +236,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					break;
 				}
 
+				//Handle enabling brakes by cancelling brake failure status
 				case EVENT_ENABLE_BRAKES:
 				{
 					SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_TOGGLE_BRAKE_FAIL, 0, GROUP_HIGHEST, 0);
@@ -239,10 +258,13 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 			switch (pObjData->dwRequestID)
 			{
+				//Same as other implementations, my goal was to not even touch the gear lever however without a custom aircraft (or a complete project), I couldn't achieve how I wanted it to be, it simulates
+				//and works as expected and required however if the gear handle was not touched and gear status was not tied to the position of the handle would have been a big improvement
 				case REQUEST_LANDING_GEAR:
 				{
 					if (greenHydraulicSystem->getPressure() < 2800 || greenHydraulicSystem->getFluid() <= 0)
 					{
+						//if gear is set up, keep it down as we don't have pressure
 						if (pObjData->dwData == 0)
 						{
 							DWORD gearPosition = 1;
@@ -252,6 +274,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 							SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_GEAR_DOWN, gearPosition, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
 						}
+						//if gear is set down, keep it up as we don't have pressure
 						else if (pObjData->dwData == 1)
 						{
 							DWORD gearPosition = 0;
@@ -264,6 +287,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					}
 					else
 					{
+						//gear can be set to whatever the position is deemed so
 						DWORD gearPosition = pObjData->dwData;
 						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_GEAR_SET, gearPosition, SIMCONNECT_GROUP_PRIORITY_HIGHEST, 0);
 					}
@@ -293,12 +317,12 @@ void OpenSimConnect()
 {
 	HRESULT hr;
 
-	// Instantiate SimConnect
+	//Instantiate SimConnect
 	if (SUCCEEDED(SimConnect_Open(&hAirbusHydraulicsGauge, ("Airbus-Hydraulics"), NULL, 0, 0, SIMCONNECT_OPEN_CONFIGINDEX_LOCAL)))
 	{
 		std::cout << "\n(Airbus-Hydraulics Message): Airbus-Hydraulics connected to Prepar3D!\n";
 
-
+		//Map custom events to sim events
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_DISABLE_FLIGHT_CONTROLS, "Airbus.Hydraulics.SetFlightControls.DisableEvent");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_DISABLE_FLIGHT_CONTROLS);
 
@@ -386,13 +410,16 @@ void OpenSimConnect()
 
 		//Define a callback in this dll so that the simulation can be notified of SimConnect events
 		if (hr == S_OK)
+		{
 			hr = SimConnect_CallDispatch(hAirbusHydraulicsGauge, DispatchProcedure, NULL);
-
+		}		
 	}
 }
 
 void CloseSimConnect()
 {
 	if (hAirbusHydraulicsGauge != NULL)
+	{
 		HRESULT hr = SimConnect_Close(hAirbusHydraulicsGauge);
+	}
 }
