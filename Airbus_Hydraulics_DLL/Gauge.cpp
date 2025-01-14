@@ -596,7 +596,7 @@ public:
 	// Set flight control engagement status
 	void set_flight_controls_switch(bool switch_state)
 	{
-		if (!(greenHydraulicSystem->getPressure() > 2000 || blueHydraulicSystem->getPressure() > 2000 || yellowHydraulicSystem->getPressure() > 2000))
+		if (!(greenHydraulicSystem->getPressure() > 1000 || blueHydraulicSystem->getPressure() > 10000 || yellowHydraulicSystem->getPressure() > 1000))
 		{
 			flight_controls_switch = false;
 		}
