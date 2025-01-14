@@ -14,14 +14,15 @@
 2. Put the iniBuilds-Task-HYD to Prepar3D v5 Add-Ons folder in the documents
 3. Add the following lines to the aircraft you want to add (adds the panel) and change the XX values based on the order
 
-	WindowXX=Airbus Hydraulics
+		WindowXX=Airbus Hydraulics
 
-	[Window03]
-	visible=1
-	size_mm=400,100
-	window_size=.45
-	ident=AirbusHydraulics
-	gauge00=Airbus-Hydraulics!Airbus-Hydraulics,0,0,400,100
+
+		[Window03]
+		visible=1
+		size_mm=400,100
+		window_size=.45
+		ident=AirbusHydraulics
+		gauge00=Airbus-Hydraulics!Airbus-Hydraulics,0,0,400,100
 
 
 ## Credits
