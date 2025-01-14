@@ -70,14 +70,22 @@
 	<Element id="LG_STATUS_LAMP">
 		<Visible>(C:Airbus-Hydraulics:LGStatusLamp) 1 == </Visible>
 		<Transparent>False</Transparent>
-		<Position X="849" Y="50"/>
+		<Position X="961" Y="25"/>
 		<Image Name="green_led_on.bmp"/>
 	</Element>
 	<!--FLIGHT CONTROLS STATUS-->
 	<Element id="FLIGHT_CONTROLS_STATUS_LAMP">
 		<Visible>(C:Airbus-Hydraulics:FlightControlsStatusLamp) 1 == </Visible>
 		<Transparent>False</Transparent>
-		<Position X="849" Y="140"/>
+		<Position X="972" Y="110"/>
+		<Image Name="green_led_on.bmp"/>
+	</Element>
+
+	<!--BRAKE STATUS-->
+	<Element id="FLIGHT_CONTROLS_STATUS_LAMP">
+		<Visible>(C:Airbus-Hydraulics:BrakeStatusLamp) 1 == </Visible>
+		<Transparent>False</Transparent>
+		<Position X="971" Y="158"/>
 		<Image Name="green_led_on.bmp"/>
 	</Element>
 
