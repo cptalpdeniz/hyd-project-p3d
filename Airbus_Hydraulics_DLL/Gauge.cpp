@@ -26,6 +26,7 @@ bool yellow_hyd_pump_fail_switch;
 
 bool landing_gear_switch;
 bool flight_controls_switch;
+bool brake_switch;
 
 FLOAT64 green_hyd_pressure;
 FLOAT64 green_hyd_fluid;
@@ -50,6 +51,7 @@ bool yellow_hyd_pump_fail_state;
 
 bool landing_gear_state;
 bool flight_controls_state;
+bool brake_state;
 
 
 std::unique_ptr<GreenHydraulics> greenHydraulicSystem;
@@ -287,7 +289,8 @@ enum AH_VAR
 	AH_BLUE_HYDRAULIC_PUMP_FAILURE,
 	AH_YELLOW_HYDRAULIC_PUMP_FAILURE,
 	AH_LANDING_GEAR_STATUS,
-	AH_FLIGHT_CONTROLS_STATUS
+	AH_FLIGHT_CONTROLS_STATUS,
+	AH_BRAKE_STATUS
 };
 
 class AHGaugeCallback : public IGaugeCCallback
@@ -457,6 +460,23 @@ public:
 		return flight_controls_switch;
 	}
 
+
+	bool get_brake_switch()
+	{
+		if (!(greenHydraulicSystem->getPressure() > 1000 && greenHydraulicSystem->getFluid() > 5))
+		{
+			brake_switch = false;
+			brake_state = SetSwitchEvent(brake_switch, brake_state, EVENT_DISABLE_BRAKES);
+		}
+		else
+		{
+			brake_switch = true;
+			brake_state = SetSwitchEvent(brake_switch, brake_state, EVENT_ENABLE_BRAKES);
+		}
+
+		return brake_switch;
+	}
+
 	/*
 	* SETTER FUNCTIONS
 	* Gauge assignment functions (SET) - these are called when updated
@@ -606,6 +626,19 @@ public:
 		}
 	}
 
+	//Set brake status
+	void set_brake_switch(bool switch_state)
+	{
+		if (!(greenHydraulicSystem->getPressure() > 1000 || greenHydraulicSystem->getFluid() > 5))
+		{
+			brake_switch = false;
+		}
+		else
+		{
+			brake_switch = true;
+		}
+	}
+
 private:
 	UINT32 m_containerId;
 };
@@ -715,6 +748,9 @@ bool AHGaugeCallback::GetPropertyValue(SINT32 id, FLOAT64 * pValue)
 		case AH_FLIGHT_CONTROLS_STATUS:
 			*pValue = get_flight_controls_switch();
 			break;
+		case AH_BRAKE_STATUS:
+			*pValue = get_brake_switch();
+			break;
 		default:
 			return false;
 	}
@@ -806,6 +842,9 @@ bool AHGaugeCallback::SetPropertyValue(SINT32 id, FLOAT64 value)
 			break;
 		case AH_FLIGHT_CONTROLS_STATUS:
 			set_flight_controls_switch(static_cast<bool>(value));
+			break;
+		case AH_BRAKE_STATUS:
+			set_brake_switch(static_cast<bool>(value));
 			break;
 		default:
 			return false;
@@ -941,6 +980,7 @@ void FSAPI module_init(void)
 
 	landing_gear_state = true;
 	flight_controls_state = true;
+	brake_state = true;
 
 	if (NULL != Panels)
 	{

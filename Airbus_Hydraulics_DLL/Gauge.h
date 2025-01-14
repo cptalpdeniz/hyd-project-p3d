@@ -30,6 +30,7 @@ extern bool yellow_hyd_pump_fail_switch;
 
 extern bool landing_gear_switch;
 extern bool flight_controls_switch;
+extern bool brake_switch;
 
 extern FLOAT64 green_hyd_pressure;
 extern FLOAT64 green_hyd_fluid;
@@ -53,6 +54,7 @@ extern bool yellow_hyd_pump_fail_state;
 
 extern bool landing_gear_state;
 extern bool flight_controls_state;
+extern bool brake_state;
 
 extern std::unique_ptr<GreenHydraulics> greenHydraulicSystem;
 extern std::unique_ptr<BlueHydraulics> blueHydraulicSystem;

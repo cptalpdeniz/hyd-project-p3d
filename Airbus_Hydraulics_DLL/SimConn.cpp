@@ -202,15 +202,36 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					break;
 				}
 
-				case EVENT_AXIS_RUDDER_SET:
+				
+				case EVENT_BRAKING_ACTION:
 				{
-					//the returned data from SimConnect is reversed hence the 100- operation
-					//double rudderSimPosition = 100 - calculatePercentage(evt->dwData);
-
-					if ((greenHydraulicSystem->getFluid() < 1 || greenHydraulicSystem->getPressure() < 1000) && (blueHydraulicSystem->getFluid() < 1 || blueHydraulicSystem->getPressure() < 1000))
+					if (greenHydraulicSystem->getFluid() > 0 && greenHydraulicSystem->getPressure() > 1000)
 					{
-						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_RUDDER_POSITION, DEF_RUDDER_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
+						std::cout << " | BRAKING + " << evt->dwData;
+
+						greenHydraulicSystem->applyBraking(0.0333); //calling for 30 fps timer
 					}
+					break;
+				}
+				
+				case EVENT_DISABLE_BRAKES:
+				{
+					SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_TOGGLE_BRAKE_FAIL, 1, GROUP_HIGHEST, 0);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_BRAKING_ACTION);
+
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_BRAKING_ACTION, true);
+
+					break;
+				}
+
+				case EVENT_ENABLE_BRAKES:
+				{
+					SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_TOGGLE_BRAKE_FAIL, 0, GROUP_HIGHEST, 0);
+
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_BRAKING_ACTION);
+
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_BRAKING_ACTION, false);
+
 					break;
 				}
 	
@@ -314,6 +335,12 @@ void OpenSimConnect()
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_ENABLE_FLIGHT_CONTROLS, "Airbus.Hydraulics.SetFlightControls.EnableEvent");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_ENABLE_FLIGHT_CONTROLS);
 
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_DISABLE_BRAKES, "Airbus.Hydraulics.SetBrakes.DisableEvent");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_DISABLE_BRAKES);
+
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_ENABLE_BRAKES, "Airbus.Hydraulics.SetBrakes.EnableEvent");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_ENABLE_BRAKES);
+
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GREEN_HYDRAULICS_PUMP_TOGGLE, "Airbus.Hydraulics.SetGrenHydraulicsPump.Event");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GREEN_HYDRAULICS_PUMP_TOGGLE);
 
@@ -351,7 +378,7 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_BRAKING_ACTION, "BRAKES");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_BRAKING_ACTION, true);
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_BRAKING_ACTION, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_TOGGLE, "GEAR_TOGGLE");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_TOGGLE, false);
@@ -372,6 +399,8 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_DOWN, false);
 
 
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_TOGGLE_BRAKE_FAIL, "TOGGLE_TOTAL_BRAKE_FAILURE");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_STANDARD, EVENT_TOGGLE_BRAKE_FAIL, false);
 		
 		
 		// Set notificaiton priority groups
