@@ -52,7 +52,8 @@ enum EVENT_ID
 //SimConnect notification groups
 enum GROUP_ID
 {
-	GROUP_HIGHEST
+	GROUP_HIGHEST,
+	GROUP_HIGHEST_MASKABLE
 };
 
 //SimConnect data requests
