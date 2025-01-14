@@ -663,6 +663,7 @@ AHGaugeCallback::AHGaugeCallback(UINT32 containerId)
 	yellow_hyd_pump_fail_switch = yellowHydraulicSystem->getIsPumpFailed();
 	landing_gear_switch = true;
 	flight_controls_switch = true;
+	brake_switch = true;
 
 	green_hyd_pressure = greenHydraulicSystem->getPressure();
 	green_hyd_fluid = greenHydraulicSystem->getFluid();
