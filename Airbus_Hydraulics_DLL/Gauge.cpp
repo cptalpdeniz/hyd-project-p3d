@@ -446,10 +446,12 @@ public:
 		if (!(greenHydraulicSystem->getPressure() > 1000 || blueHydraulicSystem->getPressure() > 1000 || yellowHydraulicSystem->getPressure() > 1000))
 		{
 			flight_controls_switch = false;
+			flight_controls_state = SetSwitchEvent(flight_controls_switch, flight_controls_state, EVENT_DISABLE_FLIGHT_CONTROLS);
 		}
 		else
 		{
 			flight_controls_switch = true;
+			flight_controls_state = SetSwitchEvent(flight_controls_switch, flight_controls_state, EVENT_ENABLE_FLIGHT_CONTROLS);
 		}
 
 		return flight_controls_switch;

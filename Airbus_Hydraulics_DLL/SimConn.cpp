@@ -164,43 +164,33 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 
 					break;
 				}
-				
 
-				case EVENT_BRAKING_ACTION:
+				case EVENT_DISABLE_FLIGHT_CONTROLS:
 				{
-					if (greenHydraulicSystem->getFluid() > 0 && greenHydraulicSystem->getPressure() > 1000)
-					{
-						greenHydraulicSystem->applyBraking(0.0333); //calling for 30 fps timer
-					}
-					else
-					{
-						// if we don't have green hyd then we cannot apply brake
-						//double brakeValue = -16383;
-						DWORD brakeValueDWORD = 0;
-						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_SIMOBJECT_TYPE_USER, EVENT_AXIS_LEFT_BRAKE_SET, brakeValueDWORD, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
-						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_SIMOBJECT_TYPE_USER, EVENT_AXIS_RIGHT_BRAKE_SET, brakeValueDWORD, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+ 					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_ELEVATOR_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_AILERONS_SET);
 
-					}
-					break;
-				}
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_RUDDER_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_ELEVATOR_SET, true);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_AILERONS_SET, true);
 
 				case EVENT_GEAR_TOGGLE:
 				{
 					SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_LANDING_GEAR, DEF_GEAR_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
 					break;
 				}
-				
-				/**For longitudinal control we use ELEVATOR axis
-				*/
-				case EVENT_AXIS_ELEVATOR_SET:
-				{
-					//the returned data from SimConnect is reversed hence the 100- operation
-					//double elevatorSimPosition = 100 - calculatePercentage(evt->dwData);
 
-					if ((greenHydraulicSystem->getFluid() < 1 || greenHydraulicSystem->getPressure() < 1000) && (blueHydraulicSystem->getFluid() < 1 || blueHydraulicSystem->getPressure() < 1000))
-					{
-						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_ELEVATOR_POSITION, DEF_ELEVATOR_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
-					}
+				case EVENT_ENABLE_FLIGHT_CONTROLS:
+				{
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_RUDDER_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_ELEVATOR_SET);
+					SimConnect_RemoveClientEvent(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_AILERONS_SET);
+
+
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET, false);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_ELEVATOR_SET, false);
+					SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_AILERONS_SET, false);
 
 					break;
 				}
@@ -353,7 +343,12 @@ void OpenSimConnect()
 		hr = SimConnect_SetSystemEventState(hAirbusHydraulicsGauge, EVENT_FRAME_TIMER, SIMCONNECT_STATE_OFF);
 		*/
 
-		//Create a client event to fire
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_DISABLE_FLIGHT_CONTROLS, "Airbus.Hydraulics.SetFlightControls.DisableEvent");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_DISABLE_FLIGHT_CONTROLS);
+
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_ENABLE_FLIGHT_CONTROLS, "Airbus.Hydraulics.SetFlightControls.EnableEvent");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_ENABLE_FLIGHT_CONTROLS);
+
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GREEN_HYDRAULICS_PUMP_TOGGLE, "Airbus.Hydraulics.SetGrenHydraulicsPump.Event");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GREEN_HYDRAULICS_PUMP_TOGGLE);
 
@@ -391,16 +386,6 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_BRAKING_ACTION, "BRAKES");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_BRAKING_ACTION, false);
-
-		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_ELEVATOR_SET, "ELEVATOR_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_ELEVATOR_SET, true);
-
-		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AILERONS_SET, "AILERON_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AILERONS_SET, true);
-
-		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_RUDDER_SET, "RUDDER_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_RUDDER_SET, true);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_TOGGLE, "GEAR_TOGGLE");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_TOGGLE, false);
@@ -414,14 +399,14 @@ void OpenSimConnect()
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AXIS_RIGHT_BRAKE_SET, "AXIS_RIGHT_BRAKE_SET");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RIGHT_BRAKE_SET, true);
 
-		// Set notificaiton priority of this group to the highest
+		
+		
+		// Set notificaiton priority groups
 		hr = SimConnect_SetNotificationGroupPriority(hAirbusHydraulicsGauge, GROUP_HIGHEST, SIMCONNECT_GROUP_PRIORITY_HIGHEST);
+		hr = SimConnect_SetNotificationGroupPriority(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, SIMCONNECT_GROUP_PRIORITY_HIGHEST_MASKABLE);
 				
 		// Define aircraft gear position
 		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_GEAR_POSITION, "GEAR HANDLE POSITION", "Bool", SIMCONNECT_DATATYPE_INT32);
-		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_RUDDER_POSITION, "RUDDER POSITION", "Position", SIMCONNECT_DATATYPE_INT32);
-		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_ELEVATOR_POSITION, "ELEVATOR POSITION", "Position", SIMCONNECT_DATATYPE_INT32);
-		hr = SimConnect_AddToDataDefinition(hAirbusHydraulicsGauge, DEF_AILERON_POSITION, "AILERON POSITION", "Position", SIMCONNECT_DATATYPE_INT32);
 
 
 		//Define a callback in this dll so that the simulation can be notified of SimConnect events
