@@ -1,0 +1,5 @@
+LIBRARY	"Gauge"
+EXPORTS
+module_init
+module_deinit
+Panels DATA
