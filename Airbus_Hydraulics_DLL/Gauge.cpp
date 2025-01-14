@@ -937,8 +937,8 @@ void FSAPI module_init(void)
 	blue_hyd_pump_fail_state = blueHydraulicSystem->getIsPumpFailed();
 	yellow_hyd_pump_fail_state = yellowHydraulicSystem->getIsPumpFailed();
 
-	landing_gear_state = false;
-	flight_controls_state = false;
+	landing_gear_state = true;
+	flight_controls_state = true;
 
 	if (NULL != Panels)
 	{
