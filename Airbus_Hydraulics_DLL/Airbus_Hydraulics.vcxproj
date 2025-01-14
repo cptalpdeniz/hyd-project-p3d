@@ -139,16 +139,18 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>D:\Coding\inibuilds-task\Airbus_Hydraulics_DLL\SimConnect\inc\SimConnect;D:\Coding\inibuilds-task\Airbus_Hydraulics_DLL\SimConnect\inc\Gauges;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
       <AdditionalLibraryDirectories>D:\Coding\inibuilds-task\Airbus_Hydraulics_DLL\SimConnect\lib\SimConnect;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SimConnect.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>Gauge.def</ModuleDefinitionFile>
+      <AssemblyDebug>false</AssemblyDebug>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
