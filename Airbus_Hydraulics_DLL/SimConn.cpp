@@ -195,15 +195,9 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					break;
 				}
 
-				case EVENT_AXIS_AILERONS_SET:
+				case EVENT_GEAR_TOGGLE:
 				{
-					//the returned data from SimConnect is reversed hence the 100- operation
-					//double rudderSimPosition = 100 - calculatePercentage(evt->dwData);
-
-					if ((greenHydraulicSystem->getFluid() < 1 || greenHydraulicSystem->getPressure() < 1000) && (blueHydraulicSystem->getFluid() < 1 || blueHydraulicSystem->getPressure() < 1000))
-					{
-						SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_AILERON_POSITION, DEF_AILERON_POSITION, SIMCONNECT_SIMOBJECT_TYPE_USER, SIMCONNECT_PERIOD_ONCE);
-					}
+					SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_LANDING_GEAR, DEF_GEAR_POSITION, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_ONCE);
 
 					break;
 				}
@@ -219,13 +213,7 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 					}
 					break;
 				}
-				/*
-				case EVENT_AXIS_RUDDER_SET:
-				{
-					SimConnect_RequestDataOnSimObject(hAirbusHydraulicsGauge, REQUEST_RUDDER_POSITION, DEF_RUDDER_POSITION, SIMCONNECT_OBJECT_ID_USER, SIMCONNECT_PERIOD_ONCE);
-				}
-				*/
-
+	
 				break;
 			}
 			break;
@@ -238,55 +226,32 @@ void CALLBACK DispatchProcedure(SIMCONNECT_RECV* pData, DWORD cbData, void* pCon
 			{
 				case REQUEST_LANDING_GEAR:
 				{
-					DWORD receivedData = pObjData->dwData;
-					if (greenHydraulicSystem->getPressure() < 1000 || greenHydraulicSystem->getFluid() <= 0)
+					if (greenHydraulicSystem->getPressure() < 2800 || greenHydraulicSystem->getFluid() <= 0)
 					{
-						if (receivedData == 0)
-						{
-							DWORD gearPosition = 0;
-
-							landing_gear_state = gearPosition;
-							landing_gear_switch = gearPosition;
-
-							SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_GEAR_SET, gearPosition, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
-						}
-						else if (receivedData == 1)
+						if (pObjData->dwData == 0)
 						{
 							DWORD gearPosition = 1;
 
 							landing_gear_state = gearPosition;
 							landing_gear_switch = gearPosition;
 
-							SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_GEAR_SET, gearPosition, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+							SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_GEAR_DOWN, gearPosition, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
+						}
+						else if (pObjData->dwData == 1)
+						{
+							DWORD gearPosition = 0;
+
+							landing_gear_state = gearPosition;
+							landing_gear_switch = gearPosition;
+
+							SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_GEAR_UP, gearPosition, SIMCONNECT_GROUP_PRIORITY_HIGHEST, SIMCONNECT_EVENT_FLAG_GROUPID_IS_PRIORITY);
 						}
 					}
-					break;
-				}
-				// consider the implementation above (also the commented EVENT_AXIS_RUDDER_SET block)
-				case REQUEST_RUDDER_POSITION:
-				{
-					DWORD receivedData = pObjData->dwData;
-					
-					// might not work because we might get rudder position AFTER axis has moved the rudder
-					SimConnect_SetDataOnSimObject(hAirbusHydraulicsGauge, DEF_RUDDER_POSITION, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(receivedData), &receivedData);
-
-					break;
-				}
-
-				case REQUEST_AILERON_POSITION:
-				{
-					DWORD receivedData = pObjData->dwData;
-
-					SimConnect_SetDataOnSimObject(hAirbusHydraulicsGauge, DEF_AILERON_POSITION, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(receivedData), &receivedData);
-
-					break;
-				}
-
-				case REQUEST_ELEVATOR_POSITION:
-				{
-					DWORD receivedData = pObjData->dwData;
-
-					SimConnect_SetDataOnSimObject(hAirbusHydraulicsGauge, DEF_ELEVATOR_POSITION, SIMCONNECT_OBJECT_ID_USER, 0, 0, sizeof(receivedData), &receivedData);
+					else
+					{
+						DWORD gearPosition = pObjData->dwData;
+						SimConnect_TransmitClientEvent(hAirbusHydraulicsGauge, SIMCONNECT_OBJECT_ID_USER, EVENT_GEAR_SET, gearPosition, SIMCONNECT_GROUP_PRIORITY_HIGHEST, 0);
+					}
 
 					break;
 				}
@@ -386,6 +351,7 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RUDDER_SET, false);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_BRAKING_ACTION, "BRAKES");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_BRAKING_ACTION, true);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_TOGGLE, "GEAR_TOGGLE");
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_TOGGLE, false);
@@ -397,7 +363,14 @@ void OpenSimConnect()
 		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_LEFT_BRAKE_SET, true);
 
 		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_AXIS_RIGHT_BRAKE_SET, "AXIS_RIGHT_BRAKE_SET");
-		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_AXIS_RIGHT_BRAKE_SET, true);
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST_MASKABLE, EVENT_AXIS_RIGHT_BRAKE_SET, true);
+
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_UP, "GEAR_UP");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_UP, false);
+
+		hr = SimConnect_MapClientEventToSimEvent(hAirbusHydraulicsGauge, EVENT_GEAR_DOWN, "GEAR_DOWN");
+		hr = SimConnect_AddClientEventToNotificationGroup(hAirbusHydraulicsGauge, GROUP_HIGHEST, EVENT_GEAR_DOWN, false);
+
 
 		
 		
