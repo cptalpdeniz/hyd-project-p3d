@@ -267,7 +267,8 @@ static PROPERTY_TABLE AH_PROPERTY_TABLE[] =
 	{"BlueHYDPumpFailSwitch", "Bool", UNITS_UNKNOWN},
 	{"YellowHYDPumpFailSwitch", "Bool", UNITS_UNKNOWN},
 	{"LGStatusLamp", "Bool", UNITS_UNKNOWN},
-	{"FlightControlsStatusLamp", "Bool", UNITS_UNKNOWN}
+	{"FlightControlsStatusLamp", "Bool", UNITS_UNKNOWN},
+	{"BrakeStatusLamp", "Bool", UNITS_UNKNOWN}
 };
 
 // Enum that contains the properties 
