@@ -11,7 +11,7 @@
 
 ## Installation
 1. Download the latest release from [Releases](https://github.com/cptalpdeniz/inibuilds-task/releases)
-2. Put the iniBuilds-Task-HYD to Prepar3D v5 Add-Ons folder in the documents
+2. Put the project-HYD to Prepar3D v5 Add-Ons folder in the documents
 3. Add the following lines to the aircraft you want to add (adds the panel) and change the XX values based on the order
 
 		WindowXX=Airbus Hydraulics
